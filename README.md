@@ -61,67 +61,67 @@ CMU_10-799_Diffusion_and_Flow_Matching_Study/
 
 ### 第 1 周：概率基础与扩散模型入门
 
-| # | 日期 | 主题 | 核心内容 | 笔记 |
-|---|------|------|----------|:--:|
-| 1 | Jan 13 | **Basics of Probabilistic & Generative Modeling** | 生成建模基础、概率论回顾、VAE、GAN | [📝](./notes.md#lecture-1) |
-| 2 | Jan 15 | **Denoising Diffusion Models (DDPM)** | VAE→扩散连接、DDPM 正向/反向过程、Karras 设计空间 | [📝](./notes.md#lecture-2) |
-| 👥 | Jan 16 | **Guest: Modal** — 如何训练与部署扩散/流模型 | | |
+| # | 日期 | 主题 | 笔记 |
+|:--:|------|------|:--:|
+| L1 | Jan 13 | **Basics of Probabilistic & Generative Modeling** | [📝](./notes.md#lecture-1--0113-basics-of-probabilistic--generative-modeling) |
+| L2 | Jan 15 | **Denoising Diffusion Models** | [📝](./notes.md#lecture-2--0115-denoising-diffusion-models) |
+| L3 | Jan 16 | **Guest (Modal):** How to train & serve your models on Modal | [📝](./notes.md#lecture-3-guest--0116-how-to-train--serve-your-models-on-modal) |
 
-> 📌 **Quiz 1** · **HW1 发布**
+> 📌 **Quiz 1** (L4)
 
 ### 第 2 周：分数模型与流匹配
 
-| # | 日期 | 主题 | 核心内容 | 笔记 |
-|---|------|------|----------|:--:|
-| 4 | Jan 20 | **Score-Based Models** | Score Matching、NCSN、SDE 统一框架 | [📝](./notes.md#lecture-4) |
-| 5 | Jan 22 | **Flow Matching** | Conditional Flow Matching、Rectified Flow、Stochastic Interpolants | [📝](./notes.md#lecture-5) |
+| # | 日期 | 主题 | 笔记 |
+|:--:|------|------|:--:|
+| L4 | Jan 20 | **Score-Based Models** | [📝](./notes.md#lecture-4--0120-score-based-models) |
+| L5 | Jan 22 | **Flow Matching** | [📝](./notes.md#lecture-5--0122-flow-matching) |
 
-> 📌 **Quiz 2** · **⏰ HW1 Due (Jan 24 Sat)**
+> 📌 **Quiz 2** · **⏰ HW 1 (15%) Due Jan 24 Sat**
 
 ### 第 3 周：设计空间与可控生成
 
-| # | 日期 | 主题 | 核心内容 | 笔记 |
-|---|------|------|----------|:--:|
-| 6 | Jan 27 | **Design Space & Fast Sampling** | DDIM、DPM-Solver、Progressive Distillation | [📝](./notes.md#lecture-6) |
-| 7 | Jan 29 | **Guidance & Controllable Generation** | Classifier Guidance、CFG、SDEdit、RePaint、DPS | [📝](./notes.md#lecture-7) |
+| # | 日期 | 主题 | 笔记 |
+|:--:|------|------|:--:|
+| L6 | Jan 27 | **The Design Space of Diffusion Models & Solvers for Fast Sampling** | [📝](./notes.md#lecture-6--0127-the-design-space-of-diffusion-models--solvers-for-fast-sampling) |
+| L7 | Jan 29 | **Guidance & Controllable Generation** | [📝](./notes.md#lecture-7--0129-guidance--controllable-generation) |
 
 > 📌 **Quiz 3**
 
 ### 第 4 周：前沿图像生成 & 机器人应用
 
-| # | 日期 | 主题 | 核心内容 | 笔记 |
-|---|------|------|----------|:--:|
-| 👥 | Feb 3 | **Guest: Max Simchowitz** — 扩散与流在机器人/控制/决策中的应用 | | |
-| 9 | Feb 5 | **SOTA Text-to-Image Models** | LDM/SD、DiT、SD3/MMDiT、FLUX、Transfusion、GPT-4o | [📝](./notes.md#lecture-9) |
+| # | 日期 | 主题 | 笔记 |
+|:--:|------|------|:--:|
+| L8 | Feb 3 | **Guest (Max Simchowitz):** Diffusion & Flow for Robotics, Control & Decision Making | [📝](./notes.md#lecture-8-guest--0203-qa-with-max-simchowitz--diffusion--flow-for-robotics-control--decision-making) |
+| L9 | Feb 5 | **SOTA Diffusion/Flow Models for Text-to-Image Generation** | [📝](./notes.md#lecture-9--0205-sota-diffusionflow-models-for-text-to-image-generation) |
 
-> 📌 **Quiz 4** · **⏰ HW2 Due (Feb 5 Thu)**
+> 📌 **Quiz 4** · **⏰ HW 2 (15%) Due Feb 5 Thu**
 
 ### 第 5 周：蒸馏与一致性模型
 
-| # | 日期 | 主题 | 核心内容 | 笔记 |
-|---|------|------|----------|:--:|
-| 10 | Feb 10 | **Distillation, Consistency Models & Flow Maps** | Progressive Distillation、Consistency Models、CTM、Flow Map Distillation | [📝](./notes.md#lecture-10) |
-| 👥 | Feb 12 | **Guest: Linqi "Alex" Zhou (Luma AI)** | 工业界实践分享 | |
+| # | 日期 | 主题 | 笔记 |
+|:--:|------|------|:--:|
+| L10 | Feb 10 | **Distillation, Consistency Models & Flow Maps** | [📝](./notes.md#lecture-10--0210-distillation-consistency-models--flow-maps) |
+| L11 | Feb 12 | **Guest (Linqi "Alex" Zhou, Luma AI)** | [📝](./notes.md#lecture-11-guest--0212-linqi-alex-zhou-from-luma-ai) |
 
-> 📌 **Quiz 5** · **⏰ HW3 Due (Feb 15 Sun)**
+> 📌 **Quiz 5** · **⏰ HW 3 (20%) Due Feb 15 Sun**
 
 ### 第 6 周：离散扩散与离散流匹配
 
-| # | 日期 | 主题 | 核心内容 | 笔记 |
-|---|------|------|----------|:--:|
-| 12 | Feb 17 | **Discrete Diffusion & Masked Diffusion** | D3PM、连续时间离散扩散、SEDD、MDLM、LLaDA | [📝](./notes.md#lecture-12) |
-| 13 | Feb 19 | **Discrete Flow Matching & Edit Flow** | CTMC 离散流匹配、Edit Flows、OneFlow、Block Diffusion | [📝](./notes.md#lecture-13) |
+| # | 日期 | 主题 | 笔记 |
+|:--:|------|------|:--:|
+| L12 | Feb 17 | **Discrete Diffusion & Masked Diffusion** | [📝](./notes.md#lecture-12--0217-discrete-diffusion--masked-diffusion) |
+| L13 | Feb 19 | **Discrete Flow Matching & Edit Flow** | [📝](./notes.md#lecture-13--0219-discrete-flow-matching--edit-flow) |
 
 > 📌 **Quiz 6 · Quiz 7**
 
 ### 第 7 周：最终展示
 
 | # | 日期 | 主题 |
-|---|------|------|
-| — | Feb 24 | **无课**（准备最终展示） |
-| 🎯 | Feb 26 | **Final Poster Presentation**（课堂 Poster Session） |
+|:--:|------|------|
+| L14 | Feb 24 | **No Class**（准备 Poster） |
+| L15 | Feb 26 | **Final Poster Presentation** |
 
-> 📌 **Poster Due (Feb 25 Wed)** · **⏰ HW4 Due (Feb 27 Fri)**
+> 📌 **Poster Due Feb 25 Wed** · **⏰ HW 4 (20%) Due Feb 27 Fri**
 
 ---
 
@@ -142,14 +142,14 @@ CMU_10-799_Diffusion_and_Flow_Matching_Study/
 
 | 周次 | 日期范围 | 内容 | 作业 | 状态 |
 |:----:|----------|------|:----:|:----:|
-| 1 | Jul 07 - Jul 13 | L1-L2: 概率基础与 DDPM | HW1 | 🔄 进行中 |
-| 2 | Jul 14 - Jul 20 | L4-L5: Score Models & Flow Matching | HW1 Due | ⬜ |
-| 3 | Jul 21 - Jul 27 | L6-L7: Fast Sampling & Guidance | HW2 | ⬜ |
-| 4 | Jul 28 - Aug 03 | L9: SOTA T2I Models | HW2 Due | ⬜ |
-| 5 | Aug 04 - Aug 10 | L10: Distillation & Consistency | HW3 | ⬜ |
-| 6 | Aug 11 - Aug 17 | L12-L13: Discrete Diffusion/Flow | HW3 Due | ⬜ |
-| 7 | Aug 18 - Aug 24 | Final Project | HW4 | ⬜ |
-| 🎯 | Aug 25 - Aug 27 | Poster & HW4 Due | — | ⬜ |
+| 1 | Jul 07 - Jul 13 | L1-L3: 概率基础、DDPM、Modal Guest | HW1 开始 | 🔄 |
+| 2 | Jul 14 - Jul 20 | L4-L5: Score Models & Flow Matching | ⏰ HW1 Due | ⬜ |
+| 3 | Jul 21 - Jul 27 | L6-L7: Fast Sampling & Guidance | HW2 开始 | ⬜ |
+| 4 | Jul 28 - Aug 03 | L8-L9: Robotics Guest & SOTA T2I | ⏰ HW2 Due | ⬜ |
+| 5 | Aug 04 - Aug 10 | L10-L11: Distillation & Luma AI Guest | HW3 开始 | ⬜ |
+| 6 | Aug 11 - Aug 17 | L12-L13: Discrete Diffusion & Flow | ⏰ HW3 Due | ⬜ |
+| 7 | Aug 18 - Aug 24 | L14-L15: Poster 准备 & Final Present | HW4 | ⬜ |
+| 🎯 | Aug 25 - Aug 27 | — | ⏰ Poster & HW4 Due | ⬜ |
 
 ---
 
@@ -169,29 +169,25 @@ pip install pytorch-fid  # 用于 FID 评估
 
 ---
 
-## 📚 核心参考资料
+## 📚 参考资料
 
-### 必读论文（按课程顺序）
+> 📖 每讲的完整阅读清单（论文 + 教程）见 **[notes.md](./notes.md)**，均来自课程官网。
 
-| 讲次 | 论文 |
-|:----:|------|
-| L1 | Kingma & Welling, *VAE* (2013); Goodfellow et al., *GAN* (2014) |
-| L2 | Ho et al., *DDPM* (2020); Sohl-Dickstein et al., *Deep Unsupervised Learning* (2015); Karras et al., *Design Space* (2022) |
-| L4 | Song & Ermon, *NCSN* (2019); Song et al., *Score-SDE* (2021) |
-| L5 | Lipman et al., *Flow Matching* (2023); Liu et al., *Rectified Flow* (2023); Albergo et al., *Stochastic Interpolants* (2023) |
-| L6 | Song et al., *DDIM* (2021); Lu et al., *DPM-Solver* (2022); Nichol & Dhariwal, *Improved DDPM* (2021) |
-| L7 | Dhariwal & Nichol, *Classifier Guidance* (2021); Ho & Salimans, *CFG* (2022); Meng et al., *SDEdit* (2022) |
-| L9 | Rombach et al., *LDM* (2022); Peebles & Xie, *DiT* (2023); Esser et al., *SD3* (2024); Labs, *FLUX* |
-| L10 | Salimans & Ho, *Progressive Distillation* (2022); Song et al., *Consistency Models* (2023) |
-| L12 | Austin et al., *D3PM* (2021); Campbell et al., *CT Discrete Diffusion* (2022); Lou et al., *SEDD* (2024) |
-| L13 | Campbell et al., *Discrete Flow Matching* (2024); Gat et al., *Edit Flow* (2025) |
+### 核心教材
 
-### 推荐教程
+- [The Principles of Diffusion Models](https://arxiv.org/abs/2510.21890) — Lai, Song, Kim, Mitsufuji, Ermon（课程核心参考书）
+- [Deep Learning](https://www.deeplearningbook.org/) — Goodfellow, Bengio, Courville（Ch.3 概率论, Ch.20 生成模型）
 
-- [What are Diffusion Models? (Lilian Weng)](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)
-- [Understanding Diffusion Models (Calvin Luo)](https://calvinyluo.com/2022/08/26/diffusion-tutorial.html)
-- [Flow Matching Guide (Jakub M. Tomczak)](https://jmtomczak.github.io/blog/18/18_fm.html)
+### 姊妹课程
+
+- [Stanford CS236: Deep Generative Models](https://deepgenerativemodels.github.io/)
+- [MIT 6.S184: Flow Matching & Diffusion Models](https://diffusion.csail.mit.edu/2025/index.html)
+- [CMU 10-423/10-623: Generative AI](https://www.cs.cmu.edu/~mgormley/courses/10423-s25/)
+
+### 开源工具
+
 - [Hugging Face Diffusers](https://github.com/huggingface/diffusers)
+- [FLUX (Black Forest Labs)](https://github.com/black-forest-labs/flux)
 
 ---
 

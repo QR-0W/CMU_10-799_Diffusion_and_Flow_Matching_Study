@@ -1,463 +1,380 @@
 # CMU 10-799: Diffusion & Flow Matching — 课程笔记
 
-> 📝 按课时组织的详细笔记 | 配合 [README](./README.md) 中的课程安排使用
+> 📝 内容来自 [课程官网](https://kellyyutonghe.github.io/10799S26/schedule/) | 笔记由学习者自行填充
 
 ---
 
-## 目录
+## Lecture 1 — 01/13: Basics of Probabilistic & Generative Modeling
 
-- [Lecture 1: Basics of Probabilistic & Generative Modeling](#lecture-1-basics-of-probabilistic--generative-modeling)
-- [Lecture 2: Denoising Diffusion Models (DDPM)](#lecture-2-denoising-diffusion-models-ddpm)
-- [Guest: Modal — Training & Serving Models](#guest-modal---training--serving-models)
-- [Lecture 4: Score-Based Models](#lecture-4-score-based-models)
-- [Lecture 5: Flow Matching](#lecture-5-flow-matching)
-- [Lecture 6: Design Space & Fast Sampling](#lecture-6-design-space--fast-sampling)
-- [Lecture 7: Guidance & Controllable Generation](#lecture-7-guidance--controllable-generation)
-- [Guest: Max Simchowitz — Diffusion/Flow for Robotics & Control](#guest-max-simchowitz---diffusionflow-for-robotics--control)
-- [Lecture 9: SOTA Text-to-Image Models](#lecture-9-sota-text-to-image-models)
-- [Lecture 10: Distillation, Consistency Models & Flow Maps](#lecture-10-distillation-consistency-models--flow-maps)
-- [Guest: Linqi "Alex" Zhou (Luma AI)](#guest-linqi-alex-zhou-luma-ai)
-- [Lecture 12: Discrete Diffusion & Masked Diffusion](#lecture-12-discrete-diffusion--masked-diffusion)
-- [Lecture 13: Discrete Flow Matching & Edit Flow](#lecture-13-discrete-flow-matching--edit-flow)
+### 资源
 
----
+- [Lecture 1 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture1_Basics.pdf)
+- [YouTube Video](https://youtu.be/p7Q77S_ZhdA)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=64500c0f-77c8-4610-a3ab-b3d101815eac)
 
-## Lecture 1: Basics of Probabilistic & Generative Modeling
+### 阅读材料
 
-> 📅 Jan 13 | 第 1 周
+**Tutorials:**
 
-### 1.1 概率建模基础
+1. [Stanford CS236: Deep Generative Models](https://deepgenerativemodels.github.io/) — Stefano Ermon, Aditya Grover
+2. [CMU 10-423/10-623: Generative AI](https://www.cs.cmu.edu/~mgormley/courses/10423-s25/) — Matt Gormley, Yuanzhi Li, Henry Chai, Pat Virtue, Aran Nayebi
+3. [CMU 18-789: Deep Generative Modeling](https://cmu-dgm.github.io/index.html) — Beidi Chen, Xun Huang
+4. [CMU 10-708: Probabilistic Graphical Models](https://andrejristeski.github.io/10708F25/) — Andrej Risteski, Albert Gu
+5. [Stanford CS228: Probabilistic Graphical Models](https://ermongroup.github.io/cs228/) — Stefano Ermon
+6. [The Principles of Diffusion Models - Chapter 1: Deep Generative Modeling](https://arxiv.org/pdf/2510.21890#page=20.19) — Lai, Song, Kim, Mitsufuji, Ermon
+7. [Deep Learning - Chapter 3: Probability and Information Theory](https://www.deeplearningbook.org/contents/prob.html) — Goodfellow, Bengio, Courville
+8. [Deep Learning - Chapter 20: Deep Generative Models](https://www.deeplearningbook.org/contents/generative_models.html) — Goodfellow, Bengio, Courville
+9. [An Introduction to Variational Autoencoders](https://arxiv.org/abs/1906.02691) — Kingma, Welling
+10. [Tutorial on Variational Autoencoders](https://arxiv.org/abs/1606.05908) — Carl Doersch
 
-- [ ] 生成模型的定义与目标：学习数据分布 $p_{\text{data}}(x)$
-- [ ] 似然函数与最大似然估计 (MLE)
-- [ ] 潜变量模型 (Latent Variable Models)
-- [ ] KL 散度与证据下界 (ELBO)
+**Papers:**
 
-### 1.2 经典生成模型回顾
+1. [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) — Kingma, Welling (foundational VAE paper)
+2. [Generative Adversarial Networks](https://arxiv.org/abs/1406.2661) — Goodfellow et al. (foundational GAN paper)
 
-- [ ] **Variational Autoencoders (VAE)**
-  - Encoder-Decoder 架构
-  - Reparameterization Trick
-  - 损失函数推导：重构损失 + KL 正则
-  - 优缺点：模糊样本、mode collapse
+### 📝 笔记
 
-- [ ] **Generative Adversarial Networks (GAN)**
-  - Generator vs Discriminator 的博弈框架
-  - 训练不稳定性与 mode collapse
-  - 与 VAE 的对比
-
-### 1.3 似然基模型 vs 隐式模型
-
-- [ ] 基于似然的模型（VAE, Flow-based, Autoregressive）
-- [ ] 隐式模型（GAN）
-- [ ] 扩散模型的定位：似然基 + 迭代式
-
-### 📄 参考阅读
-
-- Kingma & Welling, *Auto-Encoding Variational Bayes* (2013)
-- Goodfellow et al., *Generative Adversarial Nets* (2014)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Lecture 2: Denoising Diffusion Models (DDPM)
+## Lecture 2 — 01/15: Denoising Diffusion Models
 
-> 📅 Jan 15 | 第 1 周
+### 资源
 
-### 2.1 从 VAE 到扩散模型
+- [Lecture 2 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture2_Diffusion.pdf)
+- [YouTube Video](https://youtu.be/H-RbhdiWzto)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=dba3e0c7-7f13-447a-accf-b3d301838c94)
 
-- [ ] 层级 VAE 与多步潜变量
-- [ ] 扩散模型的直觉：逐步加噪 → 逐步去噪
+### 阅读材料
 
-### 2.2 DDPM 正向过程 (Forward/Diffusion Process)
+**Tutorials:**
 
-- [ ] 马尔可夫链定义：$q(x_t | x_{t-1}) = \mathcal{N}(x_t; \sqrt{1-\beta_t}x_{t-1}, \beta_t I)$
-- [ ] 噪声调度 (Noise Schedule)：$\beta_1 < \beta_2 < \cdots < \beta_T$
-- [ ] 闭式采样：$q(x_t | x_0) = \mathcal{N}(x_t; \sqrt{\bar{\alpha}_t}x_0, (1-\bar{\alpha}_t)I)$
-- [ ] $\bar{\alpha}_t = \prod_{s=1}^t \alpha_s$ 的推导
+1. [The Principles of Diffusion Models - Chapter 2: Variational Perspective: From VAEs to DDPMs](https://arxiv.org/pdf/2510.21890#page=37.19) — Lai, Song, Kim, Mitsufuji, Ermon
+2. [What are Diffusion Models?](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/) — Lilian Weng
+3. [Understanding Diffusion Models: A Unified Perspective](https://calvinyluo.com/2022/08/26/diffusion-tutorial.html) — Calvin Luo
 
-### 2.3 DDPM 反向过程 (Reverse Process)
+**Papers:**
 
-- [ ] 反向条件分布 $q(x_{t-1} | x_t, x_0)$ 的推导
-- [ ] 变分下界 (Variational Lower Bound) 分解
-- [ ] 简化训练目标：$\mathbb{E}_{t, x_0, \epsilon}[||\epsilon - \epsilon_\theta(x_t, t)||^2]$
-- [ ] 为什么预测噪声 $\epsilon$ 而非均值？
+1. [Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2006.11239) — Ho, Jain, Abbeel (foundational DDPM paper)
+2. [Deep Unsupervised Learning using Nonequilibrium Thermodynamics](https://arxiv.org/abs/1503.03585) — Sohl-Dickstein et al. (original diffusion paper)
+3. [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/abs/2206.00364) — Karras, Aittala, Aila, Laine
 
-### 2.4 架构设计
+### 📝 笔记
 
-- [ ] U-Net 基础结构
-- [ ] 时间步嵌入 (Time Embedding)
-- [ ] Karras et al. 设计空间分析要点
-
-### 📄 参考阅读
-
-- Ho et al., *Denoising Diffusion Probabilistic Models* (2020)
-- Sohl-Dickstein et al., *Deep Unsupervised Learning using Nonequilibrium Thermodynamics* (2015)
-- Karras et al., *Elucidating the Design Space of Diffusion-Based Generative Models* (2022)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Guest: Modal — Training & Serving Models
+## Lecture 3 (Guest) — 01/16: How to train & serve your models on Modal
 
-> 📅 Jan 16 | Guest Lecture
+### 资源
 
-- [ ] 扩散/流模型的训练基础设施
-- [ ] 模型部署与服务化
-- [ ] 实践技巧与经验分享
+- [YouTube Video](https://youtu.be/dPVpmv4eFnM)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=47b2faf1-c30d-4918-8df9-b3d7000d9e77)
 
----
+### 📝 笔记
 
-## Lecture 4: Score-Based Models
-
-> 📅 Jan 20 | 第 2 周
-
-### 4.1 Score Matching
-
-- [ ] Score 的定义：$\nabla_x \log p(x)$ — 指向高密度区域的方向
-- [ ] Hyvärinen Score Matching：隐式匹配，无需知道归一化常数
-- [ ] Denoising Score Matching：$\nabla_x \log p(x_t | x_0) = -\frac{x_t - x_0}{\sigma^2}$
-- [ ] Sliced Score Matching
-
-### 4.2 Noise Conditional Score Networks (NCSN)
-
-- [ ] 多噪声级别的必要性：低密度区域问题
-- [ ] 退火 Langevin Dynamics 采样
-- [ ] 噪声条件网络设计
-
-### 4.3 SDE 统一框架
-
-- [ ] 正向 SDE：$dx = f(x,t)dt + g(t)dw$
-- [ ] 反向 SDE：$dx = [f(x,t) - g(t)^2 \nabla_x \log p_t(x)]dt + g(t)d\bar{w}$
-- [ ] SDE 视角下 DDPM 与 NCSN 的统一
-- [ ] 概率流 ODE (Probability Flow ODE)：确定性采样
-
-### 4.4 SDE 类型
-
-- [ ] Variance Exploding (VE) SDE：对应 NCSN
-- [ ] Variance Preserving (VP) SDE：对应 DDPM
-- [ ] Sub-VP SDE
-
-### 📄 参考阅读
-
-- Song & Ermon, *Generative Modeling by Estimating Gradients of the Data Distribution* (2019)
-- Song et al., *Score-Based Generative Modeling through Stochastic Differential Equations* (2021)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Lecture 5: Flow Matching
+## Lecture 4 — 01/20: Score-Based Models
 
-> 📅 Jan 22 | 第 2 周
+> 📌 **Quiz 1 Due**
 
-### 5.1 连续归一化流 (Continuous Normalizing Flows)
+### 资源
 
-- [ ] ODE 定义的变换：$\frac{dx}{dt} = v_t(x)$
-- [ ] 瞬时变量变换定理 (Instantaneous Change of Variables)
-- [ ] CNF 的训练困难：需要 ODE 求解器反传
+- [Lecture 4 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture4_Score.pdf)
+- [YouTube Video](https://youtu.be/UEJxHpFEb04)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=d3616939-c5a3-48ad-8d68-b3d8018650c1)
 
-### 5.2 Conditional Flow Matching (CFM)
+### 阅读材料
 
-- [ ] 核心思想：对条件向量场做回归
-- [ ] CFM 损失：$\mathbb{E}_{t, p_t(x|x_1), q(x_1)}[||v_t(x) - u_t(x|x_1)||^2]$
-- [ ] 与 score matching 损失的等价性
-- [ ] 关键优势：无需 ODE 反传，训练稳定
+**Tutorials:**
 
-### 5.3 概率路径设计
+1. [Generative Modeling by Estimating Gradients of the Data Distribution](https://yang-song.net/blog/2021/score/) — Yang Song
+2. [The Principles of Diffusion Models - Appendix A: Crash Course on Differential Equations](https://arxiv.org/pdf/2510.21890#page=386.11) — Lai, Song, Kim, Mitsufuji, Ermon
+3. [The Principles of Diffusion Models - Chapter 3: Score-Based Perspective: From EBMs to NCSN](https://arxiv.org/pdf/2510.21890#page=61.19) — Lai, Song, Kim, Mitsufuji, Ermon
+4. [The Principles of Diffusion Models - Chapter 4: Diffusion Models Today: Score SDE Framework](https://arxiv.org/pdf/2510.21890#page=91.19) — Lai, Song, Kim, Mitsufuji, Ermon
+5. [Generative Modeling by Estimating Gradients of the Data Distribution](https://andrewcharlesjones.github.io/journal/21-score-matching.html) — Andy Jones
 
-- [ ] Gaussian 路径：$p_t(x|x_1) = \mathcal{N}(x; \mu_t(x_1), \sigma_t^2 I)$
-- [ ] 条件向量场：$u_t(x|x_1) = \frac{\dot{\sigma}_t}{\sigma_t}(x - \mu_t) + \dot{\mu}_t$
-- [ ] Optimal Transport (OT) 路径：直线路径 + 常数方差
+**Papers:**
 
-### 5.4 变体与扩展
+1. [Estimation of Non-Normalized Statistical Models by Score Matching](https://jmlr.org/papers/volume6/hyvarinen05a/hyvarinen05a.pdf) — Aapo Hyvärinen (original score matching paper)
+2. [A Connection Between Score Matching and Denoising Autoencoders](https://www.iro.umontreal.ca/~vincentp/Publications/smdae_techreport.pdf) — Pascal Vincent (original denoising score matching paper)
+3. [Generative Modeling by Estimating Gradients of the Data Distribution](https://arxiv.org/abs/1907.05600) — Song, Ermon (annealed Langevin dynamics + NCSN)
+4. [Score-Based Generative Modeling through Stochastic Differential Equations](https://arxiv.org/abs/2011.13456) — Song, Sohl-Dickstein, Kingma, Kumar, Ermon, Poole (foundational SDE unification paper)
 
-- [ ] **Rectified Flow**：直线路径 + 重加权机制
-- [ ] **Stochastic Interpolants**：统一的插值框架
-- [ ] Flow Matching vs Score Matching 的比较
+### 📝 笔记
 
-### 📄 参考阅读
-
-- Lipman et al., *Flow Matching for Generative Modeling* (2023)
-- Liu et al., *Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow* (2023)
-- Albergo et al., *Stochastic Interpolants: A Unifying Framework for Flows and Diffusions* (2023)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Lecture 6: Design Space & Fast Sampling
+## Lecture 5 — 01/22: Flow Matching
 
-> 📅 Jan 27 | 第 3 周
+> 📌 **Quiz 2 Due** · **⏰ HW 1 (15%) Due 01/24 Sat**
 
-### 6.1 扩散模型设计空间
+### 资源
 
-- [ ] Elucidating the Design Space (Karras et al., 2022)
-  - 网络架构选择
-  - 训练配置（噪声调度、损失加权）
-  - 采样器选择
-- [ ] Improved DDPM (Nichol & Dhariwal, 2021)
-  - 可学习的噪声调度
-  - 余弦噪声调度
+- [Lecture 5 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture5_Flow.pdf)
+- [YouTube Video](https://youtu.be/_OOITDB2VCY)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=a75c4020-502f-4162-893e-b3da018375fa)
 
-### 6.2 快速采样：DDIM
+### 阅读材料
 
-- [ ] 非马尔可夫正向过程
-- [ ] DDIM 确定性采样：$x_{t-1} = \sqrt{\bar{\alpha}_{t-1}}\hat{x}_0 + \sqrt{1-\bar{\alpha}_{t-1}}\epsilon_\theta(x_t, t)$
-- [ ] 子序列加速：用少量步数（~50 步）替代全步数（~1000 步）
-- [ ] DDIM 反演 (Inversion) 用于图像编辑
+**Tutorials:**
 
-### 6.3 高级 ODE 求解器
+1. [Flow Matching Guide and Code](https://arxiv.org/abs/2412.06264) — Lipman et al.
+2. [The Principles of Diffusion Models - Chapter 5: Flow-Based Perspective: From NFs to Flow Matching](https://arxiv.org/pdf/2510.21890#page=131.11) — Lai, Song, Kim, Mitsufuji, Ermon
+3. [MIT 6.S184: Introduction to Flow Matching and Diffusion Models](https://diffusion.csail.mit.edu/2025/index.html) — Holderrieth, Erives
+4. [An Introduction to Flow Matching](https://mlg.eng.cam.ac.uk/blog/2024/01/20/flow-matching.html) — Fjelde, Mathieu, Dutordoir
+5. [Flow Matching: A visual introduction](https://peterroelants.github.io/posts/flow_matching_intro/) — Peter Roelants
+6. [Flow With What You Know](https://drscotthawley.github.io/blog/posts/FlowModels.html) — Scott H. Hawley
 
-- [ ] DPM-Solver：针对扩散 ODE 的专用高阶求解器
-- [ ] DPM-Solver++：改进的数值稳定性
-- [ ] 半线性结构利用
-- [ ] 10-20 步即可达到高质量采样
+**Papers:**
 
-### 6.4 Progressive Distillation（预览）
+1. [Flow Matching for Generative Modeling](https://arxiv.org/abs/2210.02747) — Lipman, Chen, Ben-Hamu, Nickel, Le
+2. [Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow](https://arxiv.org/abs/2209.03003) — Liu, Gong, Liu
+3. [Building Normalizing Flows with Stochastic Interpolants](https://arxiv.org/abs/2209.15571) — Albergo, Vanden-Eijnden
 
-- [ ] 逐步将步数减半：教师模型 → 学生模型
-- [ ] 与快速采样器结合使用
+### 📝 笔记
 
-### 📄 参考阅读
-
-- Song et al., *Denoising Diffusion Implicit Models* (2021)
-- Lu et al., *DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling* (2022)
-- Nichol & Dhariwal, *Improved Denoising Diffusion Probabilistic Models* (2021)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Lecture 7: Guidance & Controllable Generation
+## Lecture 6 — 01/27: The Design Space of Diffusion Models & Solvers for Fast Sampling
 
-> 📅 Jan 29 | 第 3 周
+### 资源
 
-### 7.1 Classifier Guidance
+- [Lecture 6 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture6_Fast.pdf)
+- [YouTube Video](https://youtu.be/6-gp8fR9r8w)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=12d33dab-008b-4162-a402-b3df0186aae6)
 
-- [ ] 利用预训练分类器引导生成
-- [ ] 分数修正：$\nabla_x \log p(x|y) = \nabla_x \log p(x) + \nabla_x \log p(y|x)$
-- [ ] 引导强度 (Guidance Scale) 的权衡：质量 vs 多样性
+### 阅读材料
 
-### 7.2 Classifier-Free Guidance (CFG)
+**Papers:**
 
-- [ ] 隐式分类器：$p(y|x) \propto \frac{p(x|y)}{p(x)}$
-- [ ] 联合训练条件/无条件模型
-- [ ] CFG 采样：$\tilde{\epsilon}_\theta(x_t, t, y) = \epsilon_\theta(x_t, t, \emptyset) + w \cdot (\epsilon_\theta(x_t, t, y) - \epsilon_\theta(x_t, t, \emptyset))$
-- [ ] 为什么 CFG 是主流方案？
+1. [Denoising Diffusion Implicit Models](https://arxiv.org/abs/2010.02502) — Song, Meng, Ermon (first fast deterministic sampling paper)
+2. [DPM-Solver: A Fast ODE Solver for Diffusion Probabilistic Model Sampling in Around 10 Steps](https://arxiv.org/abs/2206.00927) — Lu et al.
+3. [DPM-Solver++: Fast Solver for Guided Sampling of Diffusion Probabilistic Models](https://arxiv.org/abs/2211.01095) — Lu et al.
+4. [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/abs/2206.00364) — Karras et al.
+5. [Improved Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2102.09672) — Nichol, Dhariwal
+6. [Variational Diffusion Models](https://arxiv.org/abs/2107.00630) — Kingma, Salimans, Poole, Ho
+7. [Progressive Distillation for Fast Sampling of Diffusion Models](https://arxiv.org/abs/2202.00512) — Salimans, Ho
 
-### 7.3 可控生成方法
+### 📝 笔记
 
-- [ ] **SDEdit**：以噪声为桥梁，从引导图像生成
-- [ ] **RePaint**：扩散模型的 Inpainting
-- [ ] **Diffusion Posterior Sampling (DPS)**：逆问题求解
-- [ ] **Manifold Preserving Guidance**：在流形上操作
-- [ ] **FreeDoM**：无需训练的引导方法
-
-### 7.4 条件注入方式
-
-- [ ] 文本条件（Cross-Attention）
-- [ ] 图像条件（ControlNet 式附加输入）
-- [ ] 布局/结构条件
-
-### 📄 参考阅读
-
-- Dhariwal & Nichol, *Diffusion Models Beat GANs on Image Synthesis* (2021)
-- Ho & Salimans, *Classifier-Free Diffusion Guidance* (2022)
-- Meng et al., *SDEdit: Guided Image Synthesis and Editing with Stochastic Differential Equations* (2022)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Guest: Max Simchowitz — Diffusion/Flow for Robotics & Control
+## Lecture 7 — 01/29: Guidance & Controllable Generation
 
-> 📅 Feb 3 | Guest Lecture
+> 📌 **Quiz 3 Due**
 
-- [ ] 扩散/流模型在机器人学中的应用
-- [ ] 行为克隆与扩散策略 (Diffusion Policy)
-- [ ] 规划与控制中的生成式方法
-- [ ] Q&A 讨论
+### 资源
 
----
+- [Lecture 7 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture7_Guidance.pdf)
+- [YouTube Video](https://youtu.be/lPipzIG6rkc)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=5d89c60e-0505-4852-ad73-b3e10187c916)
 
-## Lecture 9: SOTA Text-to-Image Models
+### 阅读材料
 
-> 📅 Feb 5 | 第 4 周
+**Papers:**
 
-### 9.1 潜空间扩散模型 (Latent Diffusion Models)
+1. [Diffusion Models Beat GANs on Image Synthesis](https://arxiv.org/abs/2105.05233) — Dhariwal, Nichol (classifier guidance)
+2. [Classifier-Free Diffusion Guidance](https://arxiv.org/abs/2207.12598) — Ho, Salimans
+3. [SDEdit: Guided Image Synthesis and Editing with Stochastic Differential Equations](https://arxiv.org/abs/2108.01073) — Meng, He, Song, Song, Wu, Zhu, Ermon
+4. [RePaint: Inpainting using Denoising Diffusion Probabilistic Models](https://arxiv.org/abs/2201.09865) — Lugmayr et al.
+5. [Diffusion Posterior Sampling for General Noisy Inverse Problems](https://arxiv.org/abs/2209.14687) — Chung et al.
+6. [Manifold Preserving Guided Diffusion](https://arxiv.org/abs/2311.16424) — He et al.
+7. [FreeDoM: Training-Free Energy-Guided Conditional Diffusion Model](https://arxiv.org/abs/2303.09833) — Yu et al.
+8. [The Riemannian Geometry of Deep Generative Models](https://arxiv.org/abs/1711.08014) — Shao, Kumar, Fletcher
+9. [Improving Diffusion Models for Inverse Problems using Manifold Constraints](https://arxiv.org/abs/2206.00941) — Chung et al.
 
-- [ ] 从像素空间到潜空间：感知压缩
-- [ ] VAE Encoder → U-Net in Latent Space → VAE Decoder
-- [ ] **Stable Diffusion** 系列架构剖析
+### 📝 笔记
 
-### 9.2 Transformer 架构
-
-- [ ] **DiT** (Diffusion Transformer)：用 Transformer 替代 U-Net
-  - Patchify → Transformer Blocks → Unpatchify
-  - AdaLN (Adaptive Layer Norm) 条件机制
-- [ ] **SD3 / MMDiT**：多模态扩散 Transformer
-  - 双流注意力（文本流 + 图像流）
-  - 联合建模文本/图像表示
-
-### 9.3 最新模型
-
-- [ ] **FLUX**：Black Forest Labs 的前沿模型
-- [ ] **Transfusion**：统一多模态生成
-- [ ] **Gemini / GPT-4o 的多模态能力**
-
-### 9.4 文本编码器与条件机制
-
-- [ ] CLIP：对比语言-图像预训练
-- [ ] T5：强大的文本编码器
-- [ ] 文本-图像对齐的关键技术
-
-### 📄 参考阅读
-
-- Rombach et al., *High-Resolution Image Synthesis with Latent Diffusion Models* (2022)
-- Peebles & Xie, *Scalable Diffusion Models with Transformers* (2023)
-- Esser et al., *Scaling Rectified Flow Transformers for High-Resolution Image Synthesis* (2024)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Lecture 10: Distillation, Consistency Models & Flow Maps
+## Lecture 8 (Guest) — 02/03: Q&A with Max Simchowitz — Diffusion & Flow for Robotics, Control & Decision Making
 
-> 📅 Feb 10 | 第 5 周
+- Speaker: [Max Simchowitz](https://msimchowitz.github.io/)
 
-### 10.1 Progressive Distillation
+### 资源
 
-- [ ] 逐步蒸馏：将采样步数从 N 降至 N/2
-- [ ] 教师 → 学生的知识迁移
-- [ ] 蒸馏损失设计
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3e74017c-75d5-415d-8da4-b3e60184d9b7) *(No YouTube)*
 
-### 10.2 Consistency Models
+### 📝 笔记
 
-- [ ] 核心思想：直接从噪声映射到数据，一步生成
-- [ ] 一致性函数：$f(x_t, t) \mapsto x_0$
-- [ ] 自洽性条件：$f(x_t, t) = f(x_{t'}, t')$ 对同一条轨迹
-- [ ] 训练方式：Consistency Distillation (CD) vs Consistency Training (CT)
-
-### 10.3 Consistency Trajectory Models (CTM)
-
-- [ ] 扩展到任意轨迹点之间的一致性
-- [ ] 灵活控制采样步数（1 步到多步）
-
-### 10.4 Flow Map Distillation
-
-- [ ] 流图的概念
-- [ ] 一步流匹配蒸馏
-- [ ] 质量与速度的权衡
-
-### 📄 参考阅读
-
-- Salimans & Ho, *Progressive Distillation for Fast Sampling of Diffusion Models* (2022)
-- Song et al., *Consistency Models* (2023)
-- Kim et al., *Consistency Trajectory Models* (2024)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Guest: Linqi "Alex" Zhou (Luma AI)
+## Lecture 9 — 02/05: SOTA Diffusion/Flow Models for Text-to-Image Generation
 
-> 📅 Feb 12 | Guest Lecture
+> 📌 **Quiz 4 Due** · **⏰ HW 2 (15%) Due 02/05 Thu**
 
-- [ ] Luma AI 的 Dream Machine
-- [ ] 工业级视频生成模型
-- [ ] 实际部署的挑战与解决方案
+### 资源
 
----
+- [Lecture 9 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture9_SOTA.pdf)
+- [YouTube Video](https://youtu.be/LHNPAtd7cU4)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=70f4eb33-b85f-4a03-a750-b3e80188564d)
 
-## Lecture 12: Discrete Diffusion & Masked Diffusion
+### 阅读材料
 
-> 📅 Feb 17 | 第 6 周
+**Papers:**
 
-### 12.1 为什么需要离散扩散？
+1. [High-Resolution Image Synthesis with Latent Diffusion Models](https://arxiv.org/abs/2112.10752) — Rombach et al. (Stable Diffusion / LDM)
+2. [Neural Discrete Representation Learning](https://arxiv.org/abs/1711.00937) — van den Oord, Vinyals, Kavukcuoglu (VQ-VAE)
+3. [Taming Transformers for High-Resolution Image Synthesis](https://arxiv.org/abs/2012.09841) — Esser, Rombach, Ommer (VQ-GAN)
+4. [Learning Transferable Visual Models From Natural Language Supervision](https://arxiv.org/abs/2103.00020) — Radford et al. (CLIP)
+5. [Exploring the Limits of Transfer Learning with a Unified Text-to-Text Transfer Transformer](https://arxiv.org/abs/1910.10683) — Raffel et al. (T5)
+6. [Scalable Diffusion Models with Transformers](https://arxiv.org/abs/2212.09748) — Peebles, Xie (DiT)
+7. [Scaling Rectified Flow Transformers for High-Resolution Image Synthesis](https://arxiv.org/abs/2403.03206) — Esser et al. (SD3 / MMDiT)
+8. [FLUX.1](https://github.com/black-forest-labs/flux) — Black Forest Labs
+9. [FLUX.2: Frontier Visual Intelligence](https://bfl.ai/blog/flux-2) — Black Forest Labs
+10. [Z-Image: An Efficient Image Generation Foundation Model with Single-Stream Diffusion Transformer](https://arxiv.org/abs/2511.22699) — Tongyi
+11. [HunyuanImage 3.0 Technical Report](https://arxiv.org/abs/2509.23951) — Tencent
+12. [Transfusion: Predict the Next Token and Diffuse Images with One Multi-Modal Model](https://arxiv.org/abs/2408.11039) — Zhou et al.
+13. [Nano Banana (Gemini 2.5 Flash Image)](https://deepmind.google/models/gemini-image/) — Google DeepMind
+14. [Introducing 4o Image Generation](https://openai.com/index/introducing-4o-image-generation/) — OpenAI
 
-- [ ] 文本、代码、分子等离散数据的建模
-- [ ] 连续扩散在离散空间中的局限性
-- [ ] 离散扩散 vs 自回归模型的对比
+### 📝 笔记
 
-### 12.2 D3PM: 离散去噪扩散概率模型
-
-- [ ] 离散状态空间上的扩散：转移矩阵
-- [ ] 正向过程：均匀噪声 / 掩码 (Mask) 转移
-- [ ] 反向过程：预测干净数据
-
-### 12.3 连续时间离散扩散
-
-- [ ] CTMC (Continuous-Time Markov Chain) 视角
-- [ ] 速率矩阵 $R_t$ 与转移概率
-- [ ] 反向 CTMC 的模拟
-
-### 12.4 最新离散扩散模型
-
-- [ ] **SEDD** (Score Entropy Discrete Diffusion)
-  - 离散 Score 的定义
-  - 具体分数熵目标
-- [ ] **MDLM** (Masked Diffusion Language Models)
-  - 掩码扩散语言模型
-  - 用 [MASK] token 的简单而有效的方式
-- [ ] **LLaDA**：大语言离散扩散模型
-- [ ] 简化掩码扩散
-
-### 📄 参考阅读
-
-- Austin et al., *Structured Denoising Diffusion Models in Discrete State Spaces* (2021)
-- Campbell et al., *Continuous-Time Discrete Diffusion* (2022)
-- Lou et al., *Score Entropy Discrete Diffusion Models* (2024)
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## Lecture 13: Discrete Flow Matching & Edit Flow
+## Lecture 10 — 02/10: Distillation, Consistency Models & Flow Maps
 
-> 📅 Feb 19 | 第 6 周
+> 📌 **Quiz 5 Due**
 
-### 13.1 离散流匹配
+### 资源
 
-- [ ] CTMC 上的流匹配框架
-- [ ] 连续时间离散空间中的概率路径
-- [ ] 条件离散流与采样
+- [Lecture 10 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture10_Distillation.pdf)
+- [YouTube Video](https://youtu.be/L9nsCHHMv-c)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=bdf7b265-d319-4212-a58e-b3ed018b1f4f)
 
-### 13.2 Edit Flows
+### 阅读材料
 
-- [ ] 编辑操作作为离散状态变化
-- [ ] 对文本编辑序列建模
-- [ ] 编辑流的训练与推理
+**Papers:**
 
-### 13.3 混合模态生成
+1. [Progressive Distillation for Fast Sampling of Diffusion Models](https://arxiv.org/abs/2202.00512) — Salimans, Ho
+2. [Consistency Models](https://arxiv.org/abs/2303.01469) — Song, Dhariwal, Chen, Sutskever (single-step generation)
+3. [Consistency Trajectory Models: Learning Probability Flow ODE Trajectory of Diffusion](https://arxiv.org/abs/2310.02279) — Kim et al.
+4. [How to build a consistency model: Learning flow maps via self-distillation](https://arxiv.org/abs/2505.18825) — Boffi, Albergo, Vanden-Eijnden
+5. [Align Your Flow: Scaling Continuous-Time Flow Map Distillation](https://arxiv.org/abs/2506.14603) — Sabour, Fidler, Kreis
+6. [Joint Distillation for Fast Likelihood Evaluation and Sampling in Flow-based Models](https://arxiv.org/abs/2512.02636) — Ai et al.
 
-- [ ] **OneFlow**：混合连续-离散模态的统一流
-- [ ] 同时生成图像+文本
-- [ ] 跨模态对齐
+### 📝 笔记
 
-### 13.4 Block Diffusion
-
-- [ ] 分块去噪生成
-- [ ] 介于自回归与一次性生成之间
-- [ ] 灵活控制生成顺序
-
-### 📄 参考阅读
-
-- Campbell et al., *Generative Flows on Discrete State-Spaces* (2024)
-- Gat et al., *Edit Flow* (2025)
-- 相关 OneFlow 与 Block Diffusion 论文
+<!-- 在此记录你的笔记 -->
 
 ---
 
-## 附录
+## Lecture 11 (Guest) — 02/12: Linqi "Alex" Zhou from Luma AI
 
-### A. 数学基础速查
+- Speaker: [Linqi (Alex) Zhou](https://alexzhou907.github.io/) · [Luma AI](https://lumalabs.ai/)
 
-- [ ] 高斯分布及其性质
-- [ ] KL 散度的计算
-- [ ] 重参数化技巧
-- [ ] 伊藤积分的直观理解
-- [ ] ODE/SDE 求解器基础
+### 资源
 
-### B. 评估指标
+- [Lecture 11 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/luma.pdf)
+- [YouTube Video](https://youtu.be/H7MxR3XDt30)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=f47e7820-51c1-4c8f-b582-b3ef0189dd51)
 
-- [ ] FID (Fréchet Inception Distance)
-- [ ] Inception Score (IS)
-- [ ] CLIP Score（文本-图像对齐）
-- [ ] Precision & Recall（质量 vs 多样性）
+> ⏰ **HW 3 (20%) Due 02/15 Sun**
 
-### C. 常用数据集
+### 📝 笔记
 
-- [ ] MNIST
-- [ ] CIFAR-10
-- [ ] ImageNet
-- [ ] LAION（文本-图像）
-- [ ] MS-COCO
+<!-- 在此记录你的笔记 -->
 
 ---
 
-> 📌 **使用方式**：每学完一讲，将勾选框 `[ ]` 改为 `[x]`，并在对应小节下补充自己的理解和推导。
+## Lecture 12 — 02/17: Discrete Diffusion & Masked Diffusion
+
+> 📌 **Quiz 6 Due**
+
+### 资源
+
+- [Lecture 12 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture12_Discrete_Diffusion.pdf)
+- [YouTube Video](https://youtu.be/mXEjZblUBPs)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=ff97986e-c219-48f7-b67e-b3f401866d7f)
+
+### 阅读材料
+
+**Tutorials:**
+
+1. [Discrete Diffusion (SEDD) blog post](https://aaronlou.com/blog/2024/discrete-diffusion) — Aaron Lou
+2. [MDLM project page and video tutorial](https://s-sahoo.com/mdlm) — Subham Sekhar Sahoo
+3. [Notes on D3PMs](https://beckham.nz/2022/07/11/d3pms.htm) — Christopher Beckham
+
+**Papers:**
+
+1. [Structured Denoising Diffusion Models in Discrete State-Spaces](https://arxiv.org/abs/2107.03006) — Austin et al. (D3PM)
+2. [A Continuous Time Framework for Discrete Denoising Models](https://arxiv.org/abs/2205.14987) — Campbell et al. (CTMC discrete diffusion)
+3. [Discrete Diffusion Modeling by Estimating the Ratios of the Data Distribution](https://arxiv.org/abs/2310.16834) — Lou, Meng, Ermon (SEDD)
+4. [Simple and Effective Masked Diffusion Language Models](https://arxiv.org/abs/2406.03396) — Sahoo et al. (MDLM)
+5. [Simplified and Generalized Masked Diffusion for Discrete Data](https://arxiv.org/abs/2406.04329) — Shi et al.
+6. [LLaDA: Large Language Diffusion with mAsking](https://arxiv.org/abs/2502.09992) — Nie et al.
+
+### 📝 笔记
+
+<!-- 在此记录你的笔记 -->
+
+---
+
+## Lecture 13 — 02/19: Discrete Flow Matching & Edit Flow
+
+> 📌 **Quiz 7 Due**
+
+### 资源
+
+- [Lecture 13 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture13_Discrete_Flow.pdf)
+- [YouTube Video](https://youtu.be/bK-LfpKLv0g)
+- [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3a289219-c1c7-4b82-bbd7-b3f60185f7dc)
+
+### 阅读材料
+
+**Papers:**
+
+1. [A Continuous Time Framework for Discrete Denoising Models](https://arxiv.org/abs/2205.14987) — Campbell et al.
+2. [Generative Flows on Discrete State-Spaces: Enabling Multimodal Flows with Applications to Protein Co-Design](https://arxiv.org/abs/2402.04997) — Campbell et al.
+3. [Discrete Flow Matching](https://arxiv.org/abs/2407.15595) — Gat et al.
+4. [Edit Flows: Flow Matching with Edit Operations](https://arxiv.org/abs/2506.09018) — Havasi et al.
+5. [OneFlow: Concurrent Mixed-Modal and Interleaved Generation with Edit Flows](https://arxiv.org/abs/2510.03506) — Nguyen et al.
+6. [Block Diffusion: Interpolating Between Autoregressive and Diffusion Language Models](https://arxiv.org/abs/2503.09573) — Arriola et al.
+7. [Simple and Effective Masked Diffusion Language Models](https://arxiv.org/abs/2406.03396) — Sahoo et al. (MDLM)
+
+### 📝 笔记
+
+<!-- 在此记录你的笔记 -->
+
+---
+
+## Lecture 14 — 02/24: No Class
+
+> ⏰ **Final Presentation (15%) Poster submission due 02/25 Wed**
+
+---
+
+## Lecture 15 — 02/26: Final Poster Presentation
+
+> ⏰ **HW 4 (20%) Due 02/27 Fri**
+
+---
+
+## 附录：成绩组成
+
+| 项目 | 占比 | 截止日期 |
+|------|:---:|------|
+| HW 1 | 15% | 01/24 Sat |
+| HW 2 | 15% | 02/05 Thu |
+| HW 3 | 20% | 02/15 Sun |
+| HW 4 | 20% | 02/27 Fri |
+| Final Presentation (Poster) | 15% | 02/25 Wed |
+| Quizzes (×7) | 15% | 随堂 |
