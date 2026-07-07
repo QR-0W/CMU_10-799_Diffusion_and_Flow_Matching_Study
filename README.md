@@ -1,8 +1,9 @@
 # CMU 10-799: Diffusion & Flow Matching — 自学笔记与代码实现
 
 > 📚 **自学仓库** | 基于 Carnegie Mellon University 官方课程  
-> Spring 2026, Mini 3 | Tue & Thu 5:00 PM - 6:20 PM, SH 105  
-> 讲师：Prof. Yifan Guo
+> Spring 2026, Mini 3 (7 周) | Tue & Thu 5:00 PM - 6:20 PM, SH 105  
+> 讲师：Prof. Yutong He (Kelly He)  
+> 课程网站：[10799S26](https://kellyyutonghe.github.io/10799S26/schedule/)
 
 ---
 
@@ -10,7 +11,7 @@
 
 本仓库是我自学 **CMU 10-799: Diffusion & Flow Matching** 课程的学习记录，包含：
 
-- 📝 课程笔记与知识点总结
+- 📝 课程笔记与知识点总结（见 [`notes.md`](./notes.md)）
 - 💻 课后作业的完整代码实现
 - 🔬 三个专业方向的实验与探索
 - 📄 原始作业 PDF 及参考资料
@@ -21,19 +22,7 @@
 
 ## 🎯 课程概述
 
-Stable Diffusion、DALL-E、Sora —— 这些震惊世界的生成式 AI 模型背后，究竟是什么样的数学原理？本课程从概率建模的数学基础出发，系统讲解**扩散模型（Diffusion Models）** 与**流匹配（Flow Matching）** 两大前沿框架。
-
-### 覆盖主题
-
-| 主题 | 说明 |
-|------|------|
-| 去噪扩散模型 (DDPM) | 正向加噪 & 反向去噪的数学原理 |
-| 基于分数的随机微分方程 (Score-based SDE) | 连续时间视角下的扩散过程 |
-| 流匹配 (Flow Matching) | 从概率路径到生成模型的新范式 |
-| 快速采样算法 | DDIM、蒸馏等方法加速推理 |
-| 可控生成 (Controllable Generation) | Classifier-Free Guidance 等 |
-| 流蒸馏 (Flow Distillation) | 模型压缩与加速 |
-| 离散扩散模型 | 文本等离散数据的扩散建模 |
+Stable Diffusion、DALL-E、Sora —— 这些震惊世界的生成式 AI 模型背后，究竟是什么样的数学原理？这门 7 周的 Mini 课程从概率建模的数学基础出发，系统讲解**扩散模型（Diffusion Models）** 与**流匹配（Flow Matching）** 两大前沿框架，一路深入到最新的离散扩散与多模态生成。
 
 ### 三大专业方向
 
@@ -50,14 +39,14 @@ Stable Diffusion、DALL-E、Sora —— 这些震惊世界的生成式 AI 模型
 ## 📂 仓库结构
 
 ```
-CMU_10-799_Diffusion&Flow_Matching_Study/
+CMU_10-799_Diffusion_and_Flow_Matching_Study/
 ├── README.md                 # 本文件
 ├── notes.md                  # 课程笔记（按课时组织）
 ├── homeworks/                # 原始作业 PDF
-│   ├── hw1.pdf               # 作业 1：DDPM 基础实现
-│   ├── hw2.pdf               # 作业 2：Flow Matching 基础实现
-│   ├── hw3.pdf               # 作业 3：专业方向实现
-│   └── hw4.pdf               # 作业 4：高级课题探索
+│   ├── hw1.pdf               # 作业 1：DDPM 基础实现 (15%)
+│   ├── hw2.pdf               # 作业 2：Flow Matching 基础实现 (15%)
+│   ├── hw3.pdf               # 作业 3：专业方向实现 (20%)
+│   └── hw4.pdf               # 作业 4：高级课题探索 (20%)
 ├── code/                     # 作业代码实现
 │   ├── hw1/                  # 作业 1 代码
 │   ├── hw2/                  # 作业 2 代码
@@ -68,33 +57,99 @@ CMU_10-799_Diffusion&Flow_Matching_Study/
 
 ---
 
-## 🗓️ 学习路线图
+## 🗓️ 课程安排（7 周 · 13 讲 + 3 场 Guest Lecture）
 
-### 第一阶段：基础入门（作业 1-2）
+### 第 1 周：概率基础与扩散模型入门
 
-- [ ] **作业 1：DDPM — 去噪扩散概率模型**
-  - 实现正向扩散过程（加噪调度）
-  - 实现 U-Net 去噪网络
-  - 训练与采样（MNIST / CIFAR-10）
-  - 评估指标：FID、Inception Score
+| # | 日期 | 主题 | 核心内容 | 笔记 |
+|---|------|------|----------|:--:|
+| 1 | Jan 13 | **Basics of Probabilistic & Generative Modeling** | 生成建模基础、概率论回顾、VAE、GAN | [📝](./notes.md#lecture-1) |
+| 2 | Jan 15 | **Denoising Diffusion Models (DDPM)** | VAE→扩散连接、DDPM 正向/反向过程、Karras 设计空间 | [📝](./notes.md#lecture-2) |
+| 👥 | Jan 16 | **Guest: Modal** — 如何训练与部署扩散/流模型 | | |
 
-- [ ] **作业 2：Flow Matching — 流匹配**
-  - 理解概率路径与向量场
-  - 实现 Conditional Flow Matching (CFM)
-  - 对比 DDPM vs Flow Matching
-  - 在相同数据集上训练与评估
+> 📌 **Quiz 1** · **HW1 发布**
 
-### 第二阶段：专业深入（作业 3-4）
+### 第 2 周：分数模型与流匹配
 
-- [ ] **作业 3：选择你的升级路径**
-  - 🎨 保真度：提升生成质量
-  - 🎮 可控性：添加条件控制
-  - ⚡ 速度：加速采样过程
+| # | 日期 | 主题 | 核心内容 | 笔记 |
+|---|------|------|----------|:--:|
+| 4 | Jan 20 | **Score-Based Models** | Score Matching、NCSN、SDE 统一框架 | [📝](./notes.md#lecture-4) |
+| 5 | Jan 22 | **Flow Matching** | Conditional Flow Matching、Rectified Flow、Stochastic Interpolants | [📝](./notes.md#lecture-5) |
 
-- [ ] **作业 4：高级课题**
-  - 在所选方向上进一步探索
-  - 阅读并复现相关论文
-  - 最终项目展示
+> 📌 **Quiz 2** · **⏰ HW1 Due (Jan 24 Sat)**
+
+### 第 3 周：设计空间与可控生成
+
+| # | 日期 | 主题 | 核心内容 | 笔记 |
+|---|------|------|----------|:--:|
+| 6 | Jan 27 | **Design Space & Fast Sampling** | DDIM、DPM-Solver、Progressive Distillation | [📝](./notes.md#lecture-6) |
+| 7 | Jan 29 | **Guidance & Controllable Generation** | Classifier Guidance、CFG、SDEdit、RePaint、DPS | [📝](./notes.md#lecture-7) |
+
+> 📌 **Quiz 3**
+
+### 第 4 周：前沿图像生成 & 机器人应用
+
+| # | 日期 | 主题 | 核心内容 | 笔记 |
+|---|------|------|----------|:--:|
+| 👥 | Feb 3 | **Guest: Max Simchowitz** — 扩散与流在机器人/控制/决策中的应用 | | |
+| 9 | Feb 5 | **SOTA Text-to-Image Models** | LDM/SD、DiT、SD3/MMDiT、FLUX、Transfusion、GPT-4o | [📝](./notes.md#lecture-9) |
+
+> 📌 **Quiz 4** · **⏰ HW2 Due (Feb 5 Thu)**
+
+### 第 5 周：蒸馏与一致性模型
+
+| # | 日期 | 主题 | 核心内容 | 笔记 |
+|---|------|------|----------|:--:|
+| 10 | Feb 10 | **Distillation, Consistency Models & Flow Maps** | Progressive Distillation、Consistency Models、CTM、Flow Map Distillation | [📝](./notes.md#lecture-10) |
+| 👥 | Feb 12 | **Guest: Linqi "Alex" Zhou (Luma AI)** | 工业界实践分享 | |
+
+> 📌 **Quiz 5** · **⏰ HW3 Due (Feb 15 Sun)**
+
+### 第 6 周：离散扩散与离散流匹配
+
+| # | 日期 | 主题 | 核心内容 | 笔记 |
+|---|------|------|----------|:--:|
+| 12 | Feb 17 | **Discrete Diffusion & Masked Diffusion** | D3PM、连续时间离散扩散、SEDD、MDLM、LLaDA | [📝](./notes.md#lecture-12) |
+| 13 | Feb 19 | **Discrete Flow Matching & Edit Flow** | CTMC 离散流匹配、Edit Flows、OneFlow、Block Diffusion | [📝](./notes.md#lecture-13) |
+
+> 📌 **Quiz 6 · Quiz 7**
+
+### 第 7 周：最终展示
+
+| # | 日期 | 主题 |
+|---|------|------|
+| — | Feb 24 | **无课**（准备最终展示） |
+| 🎯 | Feb 26 | **Final Poster Presentation**（课堂 Poster Session） |
+
+> 📌 **Poster Due (Feb 25 Wed)** · **⏰ HW4 Due (Feb 27 Fri)**
+
+---
+
+## 📊 成绩组成
+
+| 项目 | 占比 | 说明 |
+|------|:---:|------|
+| HW 1 | 15% | DDPM 基础实现 |
+| HW 2 | 15% | Flow Matching 基础实现 |
+| HW 3 | 20% | 专业方向实现（保真度/可控性/速度） |
+| HW 4 | 20% | 高级课题探索 |
+| Final Presentation | 15% | Poster 展示 |
+| Quizzes (×7) | 15% | 随堂测验 |
+
+---
+
+## 📝 学习进度
+
+| 周次 | 日期范围 | 内容 | 作业 | 状态 |
+|:----:|----------|------|:----:|:----:|
+| 1 | Jul 07 - Jul 13 | L1-L2: 概率基础与 DDPM | HW1 | 🔄 进行中 |
+| 2 | Jul 14 - Jul 20 | L4-L5: Score Models & Flow Matching | HW1 Due | ⬜ |
+| 3 | Jul 21 - Jul 27 | L6-L7: Fast Sampling & Guidance | HW2 | ⬜ |
+| 4 | Jul 28 - Aug 03 | L9: SOTA T2I Models | HW2 Due | ⬜ |
+| 5 | Aug 04 - Aug 10 | L10: Distillation & Consistency | HW3 | ⬜ |
+| 6 | Aug 11 - Aug 17 | L12-L13: Discrete Diffusion/Flow | HW3 Due | ⬜ |
+| 7 | Aug 18 - Aug 24 | Final Project | HW4 | ⬜ |
+| 🎯 | Aug 25 - Aug 27 | Poster & HW4 Due | — | ⬜ |
 
 ---
 
@@ -114,33 +169,29 @@ pip install pytorch-fid  # 用于 FID 评估
 
 ---
 
-## 📚 推荐参考资料
+## 📚 核心参考资料
 
-### 核心论文
-- [Denoising Diffusion Probabilistic Models (Ho et al., 2020)](https://arxiv.org/abs/2006.11239)
-- [Score-Based Generative Modeling through SDEs (Song et al., 2021)](https://arxiv.org/abs/2011.13456)
-- [Flow Matching for Generative Modeling (Lipman et al., 2023)](https://arxiv.org/abs/2210.02747)
+### 必读论文（按课程顺序）
 
-### 教程与博客
+| 讲次 | 论文 |
+|:----:|------|
+| L1 | Kingma & Welling, *VAE* (2013); Goodfellow et al., *GAN* (2014) |
+| L2 | Ho et al., *DDPM* (2020); Sohl-Dickstein et al., *Deep Unsupervised Learning* (2015); Karras et al., *Design Space* (2022) |
+| L4 | Song & Ermon, *NCSN* (2019); Song et al., *Score-SDE* (2021) |
+| L5 | Lipman et al., *Flow Matching* (2023); Liu et al., *Rectified Flow* (2023); Albergo et al., *Stochastic Interpolants* (2023) |
+| L6 | Song et al., *DDIM* (2021); Lu et al., *DPM-Solver* (2022); Nichol & Dhariwal, *Improved DDPM* (2021) |
+| L7 | Dhariwal & Nichol, *Classifier Guidance* (2021); Ho & Salimans, *CFG* (2022); Meng et al., *SDEdit* (2022) |
+| L9 | Rombach et al., *LDM* (2022); Peebles & Xie, *DiT* (2023); Esser et al., *SD3* (2024); Labs, *FLUX* |
+| L10 | Salimans & Ho, *Progressive Distillation* (2022); Song et al., *Consistency Models* (2023) |
+| L12 | Austin et al., *D3PM* (2021); Campbell et al., *CT Discrete Diffusion* (2022); Lou et al., *SEDD* (2024) |
+| L13 | Campbell et al., *Discrete Flow Matching* (2024); Gat et al., *Edit Flow* (2025) |
+
+### 推荐教程
+
 - [What are Diffusion Models? (Lilian Weng)](https://lilianweng.github.io/posts/2021-07-11-diffusion-models/)
 - [Understanding Diffusion Models (Calvin Luo)](https://calvinyluo.com/2022/08/26/diffusion-tutorial.html)
 - [Flow Matching Guide (Jakub M. Tomczak)](https://jmtomczak.github.io/blog/18/18_fm.html)
-
-### 开源代码库
 - [Hugging Face Diffusers](https://github.com/huggingface/diffusers)
-- [Stable Diffusion WebUI](https://github.com/AUTOMATIC1111/stable-diffusion-webui)
-
----
-
-## 📝 学习日志
-
-| 日期 | 内容 | 状态 |
-|------|------|------|
-| 2026-07-07 | 仓库初始化，整理课程资料 | ✅ |
-| - | 作业 1：DDPM 实现 | ⬜ |
-| - | 作业 2：Flow Matching 实现 | ⬜ |
-| - | 作业 3：专业方向 | ⬜ |
-| - | 作业 4：高级课题 | ⬜ |
 
 ---
 
@@ -148,7 +199,7 @@ pip install pytorch-fid  # 用于 FID 评估
 
 - 本仓库为个人自学记录，原始课程内容版权归 CMU 及课程讲师所有。
 - 作业代码为个人实现，仅供参考学习。
-- 如需访问原始课程资源，请访问 CMU 官方课程页面。
+- 如需访问原始课程资源，请访问 [课程官网](https://kellyyutonghe.github.io/10799S26/)。
 
 ---
 
