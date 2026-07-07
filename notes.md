@@ -1,18 +1,20 @@
 # CMU 10-799: Diffusion & Flow Matching — 课程笔记
 
-> 📝 内容来自 [课程官网](https://kellyyutonghe.github.io/10799S26/schedule/) | 笔记由学习者自行填充
+[TOC]
 
----
+------
 
 ## Lecture 1 — 01/13: Basics of Probabilistic & Generative Modeling
 
-### 资源
+------
+
+资源
 
 - [Lecture 1 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture1_Basics.pdf)
 - [YouTube Video](https://youtu.be/p7Q77S_ZhdA)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=64500c0f-77c8-4610-a3ab-b3d101815eac)
 
-### 阅读材料
+阅读材料
 
 **Tutorials:**
 
@@ -32,21 +34,29 @@
 1. [Auto-Encoding Variational Bayes](https://arxiv.org/abs/1312.6114) — Kingma, Welling (foundational VAE paper)
 2. [Generative Adversarial Networks](https://arxiv.org/abs/1406.2661) — Goodfellow et al. (foundational GAN paper)
 
-### 📝 笔记
+------
 
-<!-- 在此记录你的笔记 -->
+### 什么是一个好的图像生成模型？
+
+1. **真实性（Fidelity）**：是否一个人有四根手指/六根手指？有没有奇怪的噪点？
+2. **可控性（Controllability）**：我是否用文本生成一个我想的图像？我的模型能和其他模型交互吗？
+3. **速度（Speed）**：我的生成是否够快？我加速时是否会损失质量？
+
+
+
+
 
 ---
 
 ## Lecture 2 — 01/15: Denoising Diffusion Models
 
-### 资源
+资源
 
 - [Lecture 2 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture2_Diffusion.pdf)
 - [YouTube Video](https://youtu.be/H-RbhdiWzto)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=dba3e0c7-7f13-447a-accf-b3d301838c94)
 
-### 阅读材料
+阅读材料
 
 **Tutorials:**
 
@@ -68,7 +78,7 @@
 
 ## Lecture 3 (Guest) — 01/16: How to train & serve your models on Modal
 
-### 资源
+资源
 
 - [YouTube Video](https://youtu.be/dPVpmv4eFnM)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=47b2faf1-c30d-4918-8df9-b3d7000d9e77)
@@ -83,13 +93,13 @@
 
 > 📌 **Quiz 1 Due**
 
-### 资源
+资源
 
 - [Lecture 4 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture4_Score.pdf)
 - [YouTube Video](https://youtu.be/UEJxHpFEb04)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=d3616939-c5a3-48ad-8d68-b3d8018650c1)
 
-### 阅读材料
+阅读材料
 
 **Tutorials:**
 
@@ -106,7 +116,7 @@
 3. [Generative Modeling by Estimating Gradients of the Data Distribution](https://arxiv.org/abs/1907.05600) — Song, Ermon (annealed Langevin dynamics + NCSN)
 4. [Score-Based Generative Modeling through Stochastic Differential Equations](https://arxiv.org/abs/2011.13456) — Song, Sohl-Dickstein, Kingma, Kumar, Ermon, Poole (foundational SDE unification paper)
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -116,13 +126,13 @@
 
 > 📌 **Quiz 2 Due** · **⏰ HW 1 (15%) Due 01/24 Sat**
 
-### 资源
+资源
 
 - [Lecture 5 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture5_Flow.pdf)
 - [YouTube Video](https://youtu.be/_OOITDB2VCY)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=a75c4020-502f-4162-893e-b3da018375fa)
 
-### 阅读材料
+阅读材料
 
 **Tutorials:**
 
@@ -139,7 +149,7 @@
 2. [Flow Straight and Fast: Learning to Generate and Transfer Data with Rectified Flow](https://arxiv.org/abs/2209.03003) — Liu, Gong, Liu
 3. [Building Normalizing Flows with Stochastic Interpolants](https://arxiv.org/abs/2209.15571) — Albergo, Vanden-Eijnden
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -147,13 +157,13 @@
 
 ## Lecture 6 — 01/27: The Design Space of Diffusion Models & Solvers for Fast Sampling
 
-### 资源
+资源
 
 - [Lecture 6 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture6_Fast.pdf)
 - [YouTube Video](https://youtu.be/6-gp8fR9r8w)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=12d33dab-008b-4162-a402-b3df0186aae6)
 
-### 阅读材料
+阅读材料
 
 **Papers:**
 
@@ -165,7 +175,7 @@
 6. [Variational Diffusion Models](https://arxiv.org/abs/2107.00630) — Kingma, Salimans, Poole, Ho
 7. [Progressive Distillation for Fast Sampling of Diffusion Models](https://arxiv.org/abs/2202.00512) — Salimans, Ho
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -175,13 +185,13 @@
 
 > 📌 **Quiz 3 Due**
 
-### 资源
+资源
 
 - [Lecture 7 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture7_Guidance.pdf)
 - [YouTube Video](https://youtu.be/lPipzIG6rkc)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=5d89c60e-0505-4852-ad73-b3e10187c916)
 
-### 阅读材料
+阅读材料
 
 **Papers:**
 
@@ -195,7 +205,7 @@
 8. [The Riemannian Geometry of Deep Generative Models](https://arxiv.org/abs/1711.08014) — Shao, Kumar, Fletcher
 9. [Improving Diffusion Models for Inverse Problems using Manifold Constraints](https://arxiv.org/abs/2206.00941) — Chung et al.
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -205,11 +215,11 @@
 
 - Speaker: [Max Simchowitz](https://msimchowitz.github.io/)
 
-### 资源
+资源
 
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3e74017c-75d5-415d-8da4-b3e60184d9b7) *(No YouTube)*
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -219,13 +229,13 @@
 
 > 📌 **Quiz 4 Due** · **⏰ HW 2 (15%) Due 02/05 Thu**
 
-### 资源
+资源
 
 - [Lecture 9 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture9_SOTA.pdf)
 - [YouTube Video](https://youtu.be/LHNPAtd7cU4)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=70f4eb33-b85f-4a03-a750-b3e80188564d)
 
-### 阅读材料
+阅读材料
 
 **Papers:**
 
@@ -244,7 +254,7 @@
 13. [Nano Banana (Gemini 2.5 Flash Image)](https://deepmind.google/models/gemini-image/) — Google DeepMind
 14. [Introducing 4o Image Generation](https://openai.com/index/introducing-4o-image-generation/) — OpenAI
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -254,13 +264,13 @@
 
 > 📌 **Quiz 5 Due**
 
-### 资源
+资源
 
 - [Lecture 10 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture10_Distillation.pdf)
 - [YouTube Video](https://youtu.be/L9nsCHHMv-c)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=bdf7b265-d319-4212-a58e-b3ed018b1f4f)
 
-### 阅读材料
+阅读材料
 
 **Papers:**
 
@@ -271,7 +281,7 @@
 5. [Align Your Flow: Scaling Continuous-Time Flow Map Distillation](https://arxiv.org/abs/2506.14603) — Sabour, Fidler, Kreis
 6. [Joint Distillation for Fast Likelihood Evaluation and Sampling in Flow-based Models](https://arxiv.org/abs/2512.02636) — Ai et al.
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -281,7 +291,7 @@
 
 - Speaker: [Linqi (Alex) Zhou](https://alexzhou907.github.io/) · [Luma AI](https://lumalabs.ai/)
 
-### 资源
+资源
 
 - [Lecture 11 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/luma.pdf)
 - [YouTube Video](https://youtu.be/H7MxR3XDt30)
@@ -289,7 +299,7 @@
 
 > ⏰ **HW 3 (20%) Due 02/15 Sun**
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -299,13 +309,13 @@
 
 > 📌 **Quiz 6 Due**
 
-### 资源
+资源
 
 - [Lecture 12 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture12_Discrete_Diffusion.pdf)
 - [YouTube Video](https://youtu.be/mXEjZblUBPs)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=ff97986e-c219-48f7-b67e-b3f401866d7f)
 
-### 阅读材料
+阅读材料
 
 **Tutorials:**
 
@@ -322,7 +332,7 @@
 5. [Simplified and Generalized Masked Diffusion for Discrete Data](https://arxiv.org/abs/2406.04329) — Shi et al.
 6. [LLaDA: Large Language Diffusion with mAsking](https://arxiv.org/abs/2502.09992) — Nie et al.
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
@@ -332,13 +342,13 @@
 
 > 📌 **Quiz 7 Due**
 
-### 资源
+资源
 
 - [Lecture 13 Slides](https://cmu-diffusion-10799.github.io/10799S26/assets/slides/Lecture13_Discrete_Flow.pdf)
 - [YouTube Video](https://youtu.be/bK-LfpKLv0g)
 - [Panopto Recording (CMU only)](https://scs.hosted.panopto.com/Panopto/Pages/Viewer.aspx?id=3a289219-c1c7-4b82-bbd7-b3f60185f7dc)
 
-### 阅读材料
+阅读材料
 
 **Papers:**
 
@@ -350,7 +360,7 @@
 6. [Block Diffusion: Interpolating Between Autoregressive and Diffusion Language Models](https://arxiv.org/abs/2503.09573) — Arriola et al.
 7. [Simple and Effective Masked Diffusion Language Models](https://arxiv.org/abs/2406.03396) — Sahoo et al. (MDLM)
 
-### 📝 笔记
+📝 笔记
 
 <!-- 在此记录你的笔记 -->
 
