@@ -71,13 +71,13 @@ $$
 p(X,Y) = p(X)p(Y)
 $$
 
-### 概率建模
+### 什么是概率建模？
 
 概率建模的一般目标是为了学习一个概率分布，e.g. 高斯分布、泊松分布……，而如果能够参数化概率分布，那么目标就变成了从给定数据中学习参数。
 
 在给定模型参数 $\theta$ 的条件下，观察到数据 $x$ 的概率称为**可能性/似然（likelihood）**，记作 $p(x|\theta)$ 。
 
-### 生成建模
+### 什么是生成建模？
 
 如果说，判别建模是为了学习 P(Y|X)，那么生成建模则是为了学习 P(X,Y) or P(X)。
 
@@ -128,7 +128,7 @@ $$
 
 ![image-20260707202504022](assets/image-20260707202504022.png)
 
-### VAE 的 ELBO
+### VAE 的 ELBO 是什么？
 
 （这一部分苏剑林大佬的博客中有讲解）
 
@@ -182,6 +182,11 @@ $$
 
 ![image-20260707214853759](assets/image-20260707214853759.png)
 
+这里补充两篇附带的文章：
+
+- [VAE概述](./VAE_Notes/VAE.md)
+- [从隐变量模型到VAE、GAN、Flow 到 Diffusion](./VAE_Notes/从隐变量模型到VAE、GAN、Flow到Diffusion.md)
+
 
 
 ---
@@ -208,9 +213,46 @@ $$
 2. [Deep Unsupervised Learning using Nonequilibrium Thermodynamics](https://arxiv.org/abs/1503.03585) — Sohl-Dickstein et al. (original diffusion paper)
 3. [Elucidating the Design Space of Diffusion-Based Generative Models](https://arxiv.org/abs/2206.00364) — Karras, Aittala, Aila, Laine
 
-### 📝 笔记
+------
 
-<!-- 在此记录你的笔记 -->
+### 回顾 VAE
+
+上节课中学的 VAE 对扩散模型的开发会很有用。回顾一下：
+
+![image-20260708135919001](./assets/image-20260708135919001.png)
+
+我们可以设计：
+1. latent prior $p_\theta(z)$，通常是 N(0, I)，用于采样；
+2. Encoder $q_\phi(z|x)$，用于把 x 映射到 z 的分布；
+3. Decoder $p_\theta(x|z)$，用于从 z 生成或重构 x。
+
+我们没有：
+1. $p_\theta(x)$：模型对数据的边缘分布，因为需要积分掉 z，通常不可解；
+2. $p_\theta(z|x)$：给定 x 时真实的 latent 后验，也通常不可解。
+
+我们想要：
+1. 一个好的生成模型 $p_\theta(x)$，能够生成类似训练数据的样本；
+2. 一个好的 encoder $q_\phi(z|x)$，能够近似真实后验 $p_\theta(z|x)$。
+
+我们做的是：
+
+最大化 $log p_\theta(x)$ 的下界 ELBO，而不是直接最大化 $log p_\theta(x)$。ELBO 包含两部分：重构项让 x 能被还原，KL 项让 encoder 的 latent 分布接近 prior，从而保证可以从 prior 采样并生成合理样本。
+
+接着，我们推导了 ELBO 的两种推导方式。
+
+### 如何训练 VAE ？
+
+![image-20260708152055825](./assets/image-20260708152055825.png)
+
+训练 VAE 时，我们要从 encoder 给出的 $q_\phi(z|x)$ 中采样 $z$，再用 decoder 重构 $x$。
+
+为了让模型能用反向传播训练，这个**采样**过程必须是可微的。比如对于采样：$z \sim \mathcal{N}(\mu_\phi(x), \sigma_\phi^2(x))$ ，$\mu_\phi(x)$ 和 $\sigma_\phi(x)$ 是 encoder 预测出来的。如果直接写成“从这个分布采样 z”，随机性会挡住梯度，导致梯度很难传回 encoder。因此需要**重参数化**（reparameterization）。同时，latent prior $p(z)$ 最好选一个简单、容易采样、容易计算 $\log p(z)$ 的分布，比如标准正态分布。
+
+这里使用：$\epsilon \sim \mathcal{N}(0, I)$，则有 $z = \mu_\phi(x) + \sigma_\phi(x) \odot \epsilon$，那么此时的随机性只来自于 $\epsilon$，而 z 对于 $\mu_\phi(x)$ 和 $\sigma_\phi(x)$ 是可微的。这样就能反向传播了。
+
+因此，如果我们这么做的话，ELBO 里的 KL 项可以被化成闭式解，从而不需要采样估计 KL；但整个 ELBO 通常还没有完全变成闭式解，因为重构项仍然要通过采样的 $z$ 来估计。
+
+
 
 ---
 
