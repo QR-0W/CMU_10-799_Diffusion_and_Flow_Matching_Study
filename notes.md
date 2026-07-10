@@ -246,13 +246,34 @@ $$
 
 训练 VAE 时，我们要从 encoder 给出的 $q_\phi(z|x)$ 中采样 $z$，再用 decoder 重构 $x$。
 
+### 重参数化
+
 为了让模型能用反向传播训练，这个**采样**过程必须是可微的。比如对于采样：$z \sim \mathcal{N}(\mu_\phi(x), \sigma_\phi^2(x))$ ，$\mu_\phi(x)$ 和 $\sigma_\phi(x)$ 是 encoder 预测出来的。如果直接写成“从这个分布采样 z”，随机性会挡住梯度，导致梯度很难传回 encoder。因此需要**重参数化**（reparameterization）。同时，latent prior $p(z)$ 最好选一个简单、容易采样、容易计算 $\log p(z)$ 的分布，比如标准正态分布。
 
 这里使用：$\epsilon \sim \mathcal{N}(0, I)$，则有 $z = \mu_\phi(x) + \sigma_\phi(x) \odot \epsilon$，那么此时的随机性只来自于 $\epsilon$，而 z 对于 $\mu_\phi(x)$ 和 $\sigma_\phi(x)$ 是可微的。这样就能反向传播了。
 
-因此，如果我们这么做的话，ELBO 里的 KL 项可以被化成闭式解，从而不需要采样估计 KL；但整个 ELBO 通常还没有完全变成闭式解，因为重构项仍然要通过采样的 $z$ 来估计。
+因此，如果我们这么做的话，ELBO 里的 KL 项可以被化成闭式解，从而不需要采样估计 KL：
+$$
+\mathbb{E}_{z \sim q_{\phi}(z \mid x)}
+\left[
+\log q_{\phi}(z \mid x) - \log p_{\theta}(z)
+\right]
+=
+\frac{1}{2}
+\sum_{d}
+\left(
+\mu(x;\phi)_{d}^{2}
++
+\sigma(x;\phi)_{d}^{2}
+-
+1
+-
+2\log \sigma(x;\phi)_{d}
+\right)
+$$
+但整个 ELBO 通常还没有完全变成闭式解，因为重构项仍然要通过采样的 $z$ 来估计。
 
-
+对于 $p_\theta(x|z)$ 
 
 ---
 
