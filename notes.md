@@ -246,6 +246,8 @@ $$
 
 训练 VAE 时，我们要从 encoder 给出的 $q_\phi(z|x)$ 中采样 $z$，再用 decoder 重构 $x$。
 
+![image-20260712095016039](assets/image-20260712095016039.png)
+
 ### 重参数化
 
 为了让模型能用反向传播训练，这个**采样**过程必须是可微的。比如对于采样：$z \sim \mathcal{N}(\mu_\phi(x), \sigma_\phi^2(x))$ ，$\mu_\phi(x)$ 和 $\sigma_\phi(x)$ 是 encoder 预测出来的。如果直接写成“从这个分布采样 z”，随机性会挡住梯度，导致梯度很难传回 encoder。因此需要**重参数化**（reparameterization）。同时，latent prior $p(z)$ 最好选一个简单、容易采样、容易计算 $\log p(z)$ 的分布，比如标准正态分布。
@@ -273,7 +275,738 @@ $$
 $$
 但整个 ELBO 通常还没有完全变成闭式解，因为重构项仍然要通过采样的 $z$ 来估计。
 
-对于 $p_\theta(x|z)$ 
+对于 $p_\theta(x|z)$ ，也就是第一项，我们该如何**参数化解码器**？
+
+我们可以用高斯分布来假设这个分布 $p_{\theta}(x \mid z) \sim \mathcal{N}\left(\mu_{\theta}(z), \sigma^{2}I\right)$ ，因为这样计算起来很容易，这样就变成了“重建损失”：
+$$
+\mathbb{E}_{z \sim q_{\phi}(z \mid x)}
+\left[
+\log p_{\theta}(x \mid z)
+\right]
+\\
+=
+\frac{1}{2}
+\mathbb{E}_{z \sim q_{\phi}(z \mid x)}
+\left[
+-\frac{1}{2\sigma^{2}}
+\left\|x - \mu_{\theta}(z)\right\|^{2}
+\right]
++ C
+\\
+\propto
+-
+\mathbb{E}_{z \sim q_{\phi}(z \mid x)}
+\left[
+\left\|x - \mu_{\theta}(z)\right\|^{2}
+\right]
+$$
+
+### AR、VAE、GAN 都有缺陷
+
+事实上，无论是自回归、VAE、GAN 都有很大的缺陷。这里不具体展开了。
+
+### 从噪声到数据
+
+我们想要的是一步从噪声生成图像，但是显然一步去噪是困难的，那么我们可以尝试逐步去噪。
+
+![image-20260712100423784](assets/image-20260712100423784.png)
+
+我们通过这种 Diffusion 方式，来实现逐步加噪和去噪。
+
+让我们从数学上来看这一过程。
+
+![image-20260712100533094](assets/image-20260712100533094.png)
+
+前向的过程中，我们一直在给它加噪声：
+$$
+q(x_{1:T} \mid x_0)
+:=
+\prod_{t=1}^{T} q(x_t \mid x_{t-1})
+\space\space\space\space
+q(x_t \mid x_{t-1})
+:=
+\mathcal{N}
+\left(
+x_t;
+\sqrt{1-\beta_t}x_{t-1},
+\beta_t I
+\right)
+$$
+我们知道正向的过程是高斯的，所以我们将反向过程参数化为高斯分布也是合理的。利用我们在 VAE 中学到的技巧，通过均值和方差来参数化分布。
+$$
+p_{\theta}(x_{0:T})
+:=
+p(x_T)
+\prod_{t=1}^{T}
+p_{\theta}(x_{t-1} \mid x_t)
+\space\space\space\space
+p_{\theta}(x_{t-1} \mid x_t)
+:=
+\mathcal{N}
+\left(
+x_{t-1};
+\mu_{\theta}(x_t,t),
+\Sigma_{\theta}(x_t,t)
+\right)
+$$
+对于我们的训练而言，我们想要最大化 $\log p_\theta(x_0)$，而它是：
+$$
+\begin{aligned}
+\log p_{\theta}(x_0)
+&=
+\log \int p_{\theta}(x_{0:T}) \, dx_{1:T}
+\\
+&=
+\log \int q(x_{1:T} \mid x_0)
+\frac{
+p_{\theta}(x_{0:T})
+}{
+q(x_{1:T} \mid x_0)
+}
+\, dx_{1:T}
+\\
+&=
+\log
+\mathbb{E}_{q(x_{1:T} \mid x_0)}
+\left[
+\frac{
+p_{\theta}(x_{0:T})
+}{
+q(x_{1:T} \mid x_0)
+}
+\right]
+\\
+&\overset{\text{Jensen 不等式}}{\ge}
+\mathbb{E}_{q(x_{1:T} \mid x_0)}
+\left[
+\log
+\frac{
+p_{\theta}(x_{0:T})
+}{
+q(x_{1:T} \mid x_0)
+}
+\right]
+\end{aligned}
+$$
+因此，我们能够得到：
+$$
+\begin{aligned}
+L
+&=
+\mathbb{E}_{q}
+\left[
+-\log
+\frac{
+p_{\theta}(x_{0:T})
+}{
+q(x_{1:T}\mid x_0)
+}
+\right]
+\\
+&=
+\mathbb{E}_{q}
+\left[
+-\log p(x_T)
+-
+\sum_{t\ge 1}
+\log
+\frac{
+p_{\theta}(x_{t-1}\mid x_t)
+}{
+q(x_t\mid x_{t-1})
+}
+\right]
+\\
+&=
+\mathbb{E}_{q}
+\left[
+-\log p(x_T)
+-
+\sum_{t>1}
+\log
+\frac{
+p_{\theta}(x_{t-1}\mid x_t)
+}{
+q(x_t\mid x_{t-1})
+}
+-
+\log
+\frac{
+p_{\theta}(x_0\mid x_1)
+}{
+q(x_1\mid x_0)
+}
+\right]
+\\
+&=
+\mathbb{E}_{q}
+\left[
+-\log p(x_T)
+-
+\sum_{t>1}
+\log
+\left(
+\frac{
+p_{\theta}(x_{t-1}\mid x_t)
+}{
+q(x_{t-1}\mid x_t,x_0)
+}
+\cdot
+\frac{
+q(x_{t-1}\mid x_0)
+}{
+q(x_t\mid x_0)
+}
+\right)
+-
+\log
+\frac{
+p_{\theta}(x_0\mid x_1)
+}{
+q(x_1\mid x_0)
+}
+\right]
+\\
+&=
+\mathbb{E}_{q}
+\left[
+-\log
+\frac{
+p(x_T)
+}{
+q(x_T\mid x_0)
+}
+-
+\sum_{t>1}
+\log
+\frac{
+p_{\theta}(x_{t-1}\mid x_t)
+}{
+q(x_{t-1}\mid x_t,x_0)
+}
+-
+\log p_{\theta}(x_0\mid x_1)
+\\
+\right]
+\\
+&=
+\mathbb{E}_{q}
+\left[
+\underbrace{
+D_{KL}
+\left(
+q(x_T\mid x_0)
+\| 
+p(x_T)
+\right)
+}_{\text{prior matching term}}
++
+\underbrace{
+\sum_{t>1}
+D_{KL}
+\left(
+q(x_{t-1}\mid x_t,x_0)
+\|
+p_{\theta}(x_{t-1}\mid x_t)
+\right)
+}_{\text{KL matching terms}}
++
+\underbrace{
+\left(
+-
+\log p_{\theta}(x_0\mid x_1)
+\right)
+}_{\text{reconstruction loss}}
+\right]
+\end{aligned}
+$$
+但是这个还是太复杂了。
+
+### 更简单的方式/ Denoising Diffusion Probabilistic Models
+
+我们可以训练一个噪声估计器，用来估计每一步的噪音，然后逐步去噪。这就是 DDPM 。已知：
+$$
+\mathbb{E}_{q}
+\left[
+\underbrace{
+D_{KL}
+\left(
+q(x_T\mid x_0)
+\| 
+p(x_T)
+\right)
+}_{L_T}
++
+\sum_{t>1}
+\underbrace{
+D_{KL}
+\left(
+q(x_{t-1}\mid x_t,x_0)
+\|
+p_{\theta}(x_{t-1}\mid x_t)
+\right)
+}_{L_{t-1}}
++
+\underbrace{
+\left(
+-
+\log p_{\theta}(x_0\mid x_1)
+\right)
+}_{L_0}
+\right]
+$$
+首先，对于前向加噪过程，我们可以固定它，使得学习更加简单。比如，我们可以确定每一步都加了什么高斯噪声。
+
+而我们知道，**一个高斯加上另一个高斯，仍然还是高斯**。所以实际上，我们可以直接计算在时间步 t 时，对于一开始的干净数据，我们的噪声水平是什么。
+$$
+q(x_{1:T}\mid x_0)
+:=
+\prod_{t=1}^{T}
+q(x_t\mid x_{t-1})
+\space\space\space\space
+q(x_t\mid x_{t-1})
+:=
+\mathcal{N}
+\left(
+x_t;
+\sqrt{1-\beta_t}x_{t-1},
+\beta_t I
+\right)
+$$
+
+$$
+\alpha_t := 1 - \beta_t \space\space\text{and}\space\space \bar{\alpha}_t := \prod_{s=1}^{t}\alpha_s
+$$
+
+$$
+q(x_t\mid x_0)
+=
+\mathcal{N}
+\left(
+x_t;
+\sqrt{\bar{\alpha}_t}x_0,
+(1-\bar{\alpha}_t)I
+\right)
+$$
+
+此时，$L_T$ 就是一个常量了，因为它可以被设置为一个标准的高斯分布。
+
+而对于第二部分，我们也可以固定：
+$$
+\begin{gathered}
+q(x_{t-1}\mid x_t,x_0)
+=
+\mathcal{N}
+\left(
+x_{t-1};
+\tilde{\mu}_t(x_t,x_0),
+\tilde{\beta}_t I
+\right),
+\\
+\text{where} \quad
+\tilde{\mu}_t(x_t,x_0)
+:=
+\frac{
+\sqrt{\bar{\alpha}_{t-1}}\beta_t
+}{
+1-\bar{\alpha}_t
+}
+x_0
++
+\frac{
+\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})
+}{
+1-\bar{\alpha}_t
+}
+x_t
+\quad
+\text{and}
+\quad
+\tilde{\beta}_t
+:=
+\frac{
+1-\bar{\alpha}_{t-1}
+}{
+1-\bar{\alpha}_t
+}
+\beta_t
+\end{gathered}
+$$
+对于第三部分，我们可以固定方差并且只学习均值（人们在实践中发现这么做学习效果很好）。所以我们只学习正向和反向过程中高斯分布的均值。
+$$
+\begin{gathered}
+p_{\theta}(x_{t-1}\mid x_t)
+=
+\mathcal{N}
+\left(
+x_{t-1};
+\mu_{\theta}(x_t,t),
+\sigma_t^2 I
+\right)
+\\[0.8em]
+q(x_{t-1}\mid x_t,x_0)
+=
+\mathcal{N}
+\left(
+x_{t-1};
+\tilde{\mu}_t(x_t,x_0),
+\tilde{\beta}_t I
+\right),
+\\[0.8em]
+\text{where} \quad
+\tilde{\mu}_t(x_t,x_0)
+:=
+\frac{
+\sqrt{\bar{\alpha}_{t-1}}\beta_t
+}{
+1-\bar{\alpha}_t
+}
+x_0
++
+\frac{
+\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})
+}{
+1-\bar{\alpha}_t
+}
+x_t
+\quad
+\text{and}
+\quad
+\tilde{\beta}_t
+:=
+\frac{
+1-\bar{\alpha}_{t-1}
+}{
+1-\bar{\alpha}_t
+}
+\beta_t
+\\[0.8em]
+L_{t-1}
+=
+\mathbb{E}_{q}
+\left[
+\frac{1}{2\sigma_t^2}
+\left\|
+\tilde{\mu}_t(x_t,x_0)
+-
+\mu_{\theta}(x_t,t)
+\right\|^2
+\right]
++
+C
+\end{gathered}
+$$
+这一步把复杂的 KL matching problem 转化成了一个更简单的 mean prediction MSE loss。
+
+结合我们之前的重参数化技巧：
+
+$$
+x_t(x_0,\epsilon)
+=
+\sqrt{\bar{\alpha}_t}x_0
++
+\sqrt{1-\bar{\alpha}_t}\epsilon
+\quad
+\text{for }
+\epsilon \sim \mathcal{N}(0,I)
+$$
+我们可以用 $x_0$ 和 $\epsilon$ 来表示 $x_t$，而因此我们就能知道，我们该根据时间步长来给每个因素分配多少权重。
+$$
+\begin{gathered}
+L_{t-1}
+=
+\mathbb{E}_{q}
+\left[
+\frac{1}{2\sigma_t^2}
+\left\|
+\tilde{\mu}_t(x_t,x_0)
+-
+\mu_{\theta}(x_t,t)
+\right\|^2
+\right]
++
+C
+\\[0.8em]
+x_t(x_0,\epsilon)
+=
+\sqrt{\bar{\alpha}_t}x_0
++
+\sqrt{1-\bar{\alpha}_t}\epsilon
+\quad
+\text{for }
+\epsilon \sim \mathcal{N}(0,I)
+\\[0.8em]
+L_{t-1}-C
+=
+\mathbb{E}_{x_0,\epsilon}
+\left[
+\frac{1}{2\sigma_t^2}
+\left\|
+\tilde{\mu}_t
+\left(
+x_t(x_0,\epsilon),
+\frac{1}{\sqrt{\bar{\alpha}_t}}
+\left(
+x_t(x_0,\epsilon)
+-
+\sqrt{1-\bar{\alpha}_t}\epsilon
+\right)
+\right)
+-
+\mu_{\theta}
+\left(
+x_t(x_0,\epsilon),t
+\right)
+\right\|^2
+\right]
+\end{gathered}
+$$
+通过重参数化公式，反解出 $x_0$，从而把对 $q$ 的期望改写成对 $x_0, \epsilon$ 的期望。
+
+而模型要学习的均值 $\mu_{\theta}(x_t,t)$，要尽量接近真实后验分布的均值。接下来，我们把这个真实均值，改写成一个关于 $x_t$ 和 噪声 $\epsilon$ 的形式：
+$$
+\begin{gathered}
+q(x_{t-1}\mid x_t,x_0)
+=
+\mathcal{N}
+\left(
+x_{t-1};
+\tilde{\mu}_t(x_t,x_0),
+\tilde{\beta}_t I
+\right),
+\\[0.8em]
+\text{where} \quad
+\tilde{\mu}_t(x_t,x_0)
+:=
+\frac{
+\sqrt{\bar{\alpha}_{t-1}}\beta_t
+}{
+1-\bar{\alpha}_t
+}
+x_0
++
+\frac{
+\sqrt{\alpha_t}(1-\bar{\alpha}_{t-1})
+}{
+1-\bar{\alpha}_t
+}
+x_t
+\quad
+\text{and}
+\quad
+\tilde{\beta}_t
+:=
+\frac{
+1-\bar{\alpha}_{t-1}
+}{
+1-\bar{\alpha}_t
+}
+\beta_t
+\\[0.8em]
+L_{t-1}-C
+=
+\mathbb{E}_{x_0,\epsilon}
+\left[
+\frac{1}{2\sigma_t^2}
+\left\|
+\underbrace{
+\frac{1}{\sqrt{\alpha_t}}
+\left(
+x_t(x_0,\epsilon)
+-
+\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon
+\right)
+}_{\tilde{\mu}_t(x_t,x_0)}
+-
+\mu_{\theta}
+\left(
+x_t(x_0,\epsilon),t
+\right)
+\right\|^2
+\right]
+\end{gathered}
+$$
+其中第一部分是均值，而我们可以重参数化：
+$$
+\begin{gathered}
+L_{t-1} - C
+=
+\mathbb{E}_{x_0,\epsilon}
+\left[
+\frac{1}{2\sigma_t^2}
+\left\|
+\underbrace{
+\frac{1}{\sqrt{\alpha_t}}
+\left(
+x_t(x_0,\epsilon)
+-
+\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon
+\right)
+}_{\tilde{\mu}_t(x_t,x_0)}
+-
+\mu_{\theta}
+\left(
+x_t(x_0,\epsilon),t
+\right)
+\right\|^2
+\right]
+\\[1em]
+\mu_{\theta}(x_t,t)
+=
+\tilde{\mu}_t
+\left(
+x_t,
+\frac{1}{\sqrt{\bar{\alpha}_t}}
+\left(
+x_t
+-
+\sqrt{1-\bar{\alpha}_t}
+\epsilon_{\theta}(x_t)
+\right)
+\right)
+=
+\frac{1}{\sqrt{\alpha_t}}
+\left(
+x_t
+-
+\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}
+\epsilon_{\theta}(x_t,t)
+\right)
+\\[1em]
+L_{t-1} - C
+=
+\mathbb{E}_{x_0,\epsilon}
+\left[
+\frac{\beta_t^2}
+{
+2\sigma_t^2\alpha_t(1-\bar{\alpha}_t)
+}
+\left\|
+\epsilon
+-
+\epsilon_{\theta}
+\left(
+\sqrt{\bar{\alpha}_t}x_0
++
+\sqrt{1-\bar{\alpha}_t}\epsilon,
+t
+\right)
+\right\|^2
+\right]
+\end{gathered}
+$$
+也就是说，**我们不直接预测均值，而是让神经网络预测噪声**。最终我们能够得到 DDPM 简化训练目标：
+$$
+L_{\mathrm{simple}}
+=
+\mathbb{E}_{t,x_0,\epsilon}
+\left[
+\left\|
+\epsilon
+-
+\epsilon_{\theta}
+\left(
+\sqrt{\bar{\alpha}_t}x_0
++
+\sqrt{1-\bar{\alpha}_t}\epsilon,
+t
+\right)
+\right\|^2
+\right]
+$$
+因此，由下面的几行来看，总结就是：训练时，DDPM 学的是噪声预测器 $\epsilon_\theta(x_t,t)$；采样时，用这个噪声预测器构造反向高斯分布的均值 $\mu_\theta(x_t,t)$，然后一步步从纯噪声$x_T$ 去噪到真实样本 $x_0$。
+$$
+\begin{gathered}
+L_{t-1}-C
+=
+\mathbb{E}_{x_0,\epsilon}
+\left[
+\frac{1}{2\sigma_t^2}
+\left\|
+\frac{1}{\sqrt{\alpha_t}}
+\left(
+x_t(x_0,\epsilon)
+-
+\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}\epsilon
+\right)
+-
+\mu_{\theta}
+\left(
+x_t(x_0,\epsilon),t
+\right)
+\right\|^2
+\right]
+\\[1em]
+p_{\theta}(x_{t-1}\mid x_t)
+=
+\mathcal{N}
+\left(
+x_{t-1};
+\mu_{\theta}(x_t,t),
+\sigma_t^2 I
+\right)
+\\[1em]
+\mu_{\theta}(x_t,t)
+=
+\tilde{\mu}_t
+\left(
+x_t,
+\frac{1}{\sqrt{\bar{\alpha}_t}}
+\left(
+x_t
+-
+\sqrt{1-\bar{\alpha}_t}
+\epsilon_{\theta}(x_t)
+\right)
+\right)
+=
+\frac{1}{\sqrt{\alpha_t}}
+\left(
+x_t
+-
+\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}
+\epsilon_{\theta}(x_t,t)
+\right)
+\\[1em]
+x_{t-1}
+=
+\underbrace{
+\frac{1}{\sqrt{\alpha_t}}
+\left(
+x_t
+-
+\frac{\beta_t}{\sqrt{1-\bar{\alpha}_t}}
+\epsilon_{\theta}(x_t,t)
+\right)
+}_{\mu_\theta(x_t,t)}
++
+\sigma_t z,
+\quad
+z \sim \mathcal{N}(0,I)
+\end{gathered}
+$$
+
+### DDPM 算法
+
+![image-20260712135140080](assets/image-20260712135140080.png)
+
+从这里也能看出，实际上的算法相当简单。而且实际的效果也相当惊艳：
+
+![image-20260712135331363](assets/image-20260712135331363.png)
+
+### 扩散模型看上去像 VAE ？
+
+![image-20260712135451229](assets/image-20260712135451229.png)
+
+### 训练 DDPM 的时候，用什么模型架构？
+
+U-Net !
+
+![image-20260712135655148](assets/image-20260712135655148.png)
+
+U-Net 有一些优秀的特点，非常适合用于扩散模型。
+
+
 
 ---
 
