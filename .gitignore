@@ -37,6 +37,11 @@ checkpoints/
 runs/
 outputs/
 wandb/
+homeworks/project/artifacts/datasets/
+homeworks/project/artifacts/checkpoints/
+homeworks/project/artifacts/logs/
+homeworks/project/artifacts/samples/
+homeworks/project/artifacts/metrics/
 
 # Environment
 .env

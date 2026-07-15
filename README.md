@@ -42,16 +42,14 @@ Stable Diffusion、DALL-E、Sora —— 这些震惊世界的生成式 AI 模型
 CMU_10-799_Diffusion_and_Flow_Matching_Study/
 ├── README.md                 # 本文件
 ├── notes.md                  # 课程笔记（按课时组织）
-├── homeworks/                # 原始作业 PDF
-│   ├── hw1.pdf               # 作业 1：DDPM 基础实现 (15%)
-│   ├── hw2.pdf               # 作业 2：Flow Matching 基础实现 (15%)
-│   ├── hw3.pdf               # 作业 3：专业方向实现 (20%)
-│   └── hw4.pdf               # 作业 4：高级课题探索 (20%)
-├── code/                     # 作业代码实现
-│   ├── hw1/                  # 作业 1 代码
-│   ├── hw2/                  # 作业 2 代码
-│   ├── hw3/                  # 作业 3 代码（含方向分支）
-│   └── hw4/                  # 作业 4 代码
+├── homeworks/
+│   ├── assignments/          # HW1-HW4 原始作业 PDF
+│   └── project/              # 四次作业共享代码与实验工作区
+│       ├── code/             # 持续演进的课程代码库
+│       ├── experiments/      # 按作业和实验拆分的配置与记录
+│       ├── scripts/          # 本地、远端和评估脚本
+│       ├── docs/             # 推导、设计与算力评估
+│       └── reports/          # 各次作业报告材料
 └── resources/                # 参考资料与论文链接
 ```
 
