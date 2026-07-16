@@ -1,46 +1,62 @@
 # Compute Resources
 
-## Resource profile
+## Baseline
 
-Course experiments use one shared compute node with two NVIDIA GeForce RTX 3090 GPUs. Each GPU has 24 GB of memory. No other remote compute target is part of the current plan.
+一张 NVIDIA GeForce RTX 3090 具有 24 GB 显存，足以作为本课程作业的基线计算资源。HW1 starter config 明确说明 `num_gpus: 1 should be ok`，训练脚本也原生支持单卡执行。
 
-The public repository intentionally does not record hostnames, addresses, account names, mount points, live utilization, process information, credentials, or operational commands tied to the machine. Those details belong in `docs/private/`, which is excluded from Git.
+计算节点可以是空闲的单卡服务器，也可以是双卡服务器中的一张空闲卡。完成作业不依赖双卡 DDP。
+
+公开仓库不记录主机名、地址、账户、挂载点、实时利用率、进程信息或凭据。实际连接与路径只保存在被 Git 忽略的 `docs/private/`。
 
 ## Execution strategy
 
-- Train the HW1 and HW2 primary models on one GPU by default.
-- Use the second GPU for an independent experiment, sampling run, or evaluation when both devices are available.
-- Consider distributed data parallel training only after measuring single-GPU throughput and verifying that the effective batch size and optimization settings remain comparable.
-- Use automatic mixed precision, bounded checkpoint retention, and scripted evaluation.
-- Do not run on a partially occupied GPU. Shared-resource coordination takes priority over throughput.
+- 本地只负责 coding、文档、静态检查和轻量检查。
+- 训练、采样、KID 和报告中的正式结果统一在远端 RTX 3090 上运行。
+- HW1 与 HW2 的主模型默认使用一张 GPU。
+- 使用自动混合精度，初始 batch size 设为 16，再根据峰值显存尝试 32。
+- 每次正式训练前运行短程 smoke test，并记录 `torch.cuda.max_memory_allocated()`。
+- 如果同时获得第二张空闲卡，优先并行运行独立采样、评估或消融，而不是立即启用 DDP。
+- 不在已有计算进程的 GPU 上启动任务。
 
-This strategy favors independent jobs over synchronous two-GPU training. It avoids unnecessary communication overhead and makes interrupted experiments easier to resume.
+## Expected feasibility
 
-## Coursework feasibility
+建议的 HW1 初始配置为 `base_channels=128`、`channel_mult=[1,2,2,4]`、每层两个 residual blocks，并在 16×16 或更低分辨率使用 attention。该规模配合 AMP 和 batch size 16 预计能够放入 24 GB 显存。
 
-| Assignment | Workload | Plan |
+最终显存和速度必须在 U-Net 实现完成后实测。单卡 smoke test 的通过标准为：
+
+- 完成一次 forward、backward 和 optimizer step。
+- 峰值显存低于约 22 GB，保留运行波动空间。
+- 无 OOM、NaN 或数据加载错误。
+- 能保存并恢复 checkpoint。
+
+若显存不足，按顺序降低 batch size、减少 attention resolution、降低 base channels，最后才考虑 gradient checkpointing。不要仅为增大 batch size 引入双卡训练。
+
+## Assignment plan
+
+| Assignment | Workload | Single-GPU plan |
 |---|---|---|
-| HW1 | DDPM training, 1,000-sample KID, sampling-step ablation | One GPU for training; parallelize independent sampling groups when possible |
-| HW2 | Flow Matching, DDIM, sampling and KID comparisons | One GPU per independent method or evaluation group |
-| HW3 | Chosen specialization baseline | Keep the method within a 24 GB single-GPU budget |
-| HW4 | Proposed method and ablations | Limit the study to one primary method and the necessary ablations |
+| HW1 | DDPM、1,000-sample KID、采样步数消融 | 单卡训练；分组顺序执行采样与评估 |
+| HW2 | Flow Matching、DDIM 和 KID 对比 | 单卡分别训练与评估各方法 |
+| HW3 | 自选方向 baseline | 将方法限制在 24 GB 单卡预算内 |
+| HW4 | 改进方法与消融 | 只保留必要对比和消融，支持断点续训 |
 
-HW1 evaluation uses 1,000 generated samples and compares 100, 300, 500, 700, 900, and 1,000 sampling steps. The target is KID mean below 0.005. The optional alternative parameterization is treated as extra work rather than part of the required compute budget.
+HW1 使用 1,000 个生成样本计算 KID，并比较 100、300、500、700、900 和 1,000 个采样步数。目标是 KID mean 低于 0.005。
 
 ## Reproducibility
 
-Every reported run records:
+每次正式运行记录：
 
-- Git commit hash
-- Configuration file
-- Random seed
-- GPU count and effective batch size
-- PyTorch and CUDA versions
-- Training iterations and measured GPU hours
-- Evaluation sample count and sampling parameters
+- Git commit 与配置文件
+- 随机种子
+- GPU 型号和数量
+- PyTorch 与 CUDA 版本
+- batch size 与是否启用 AMP
+- 训练迭代数与 GPU hours
+- 评估样本数和采样参数
+- 退出状态与产物位置
 
-Comparison groups keep evaluation parameters fixed. Machine-specific identifiers are not needed to reproduce the result and must not be committed.
+同一比较组固定评估参数。机器标识不是复现所必需的信息，不得提交。
 
 ## Local queue
 
-`scripts/remote/gpu-queue.sh` is a user-level queue for coordinating this repository's own jobs. It waits for an unoccupied device, binds a job with `CUDA_VISIBLE_DEVICES`, and keeps queue files private. It is not a system scheduler and cannot reserve resources against other users.
+`scripts/remote/gpu-queue.sh` 用于协调当前账户自己的任务。它等待空闲设备、通过 `CUDA_VISIBLE_DEVICES` 绑定单张 GPU，并将队列文件保持为私有。它不是系统调度器，不能阻止其他用户绕过队列。

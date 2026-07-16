@@ -1,0 +1,6 @@
+# Reproducible CUDA environment verified on local and remote NVIDIA GPUs.
+--index-url https://download.pytorch.org/whl/cu126
+
+torch==2.11.0+cu126
+torchvision==0.26.0+cu126
+torchaudio==2.11.0+cu126

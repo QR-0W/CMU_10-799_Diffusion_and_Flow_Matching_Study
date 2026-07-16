@@ -46,6 +46,7 @@ homeworks/project/artifacts/metrics/
 # Environment
 .env
 .env.local
+.kilo/kilo.jsonc
 
 # Private machine and operations documentation
 homeworks/project/docs/private/

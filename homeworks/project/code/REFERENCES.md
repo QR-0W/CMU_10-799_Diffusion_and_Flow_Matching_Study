@@ -5,10 +5,11 @@ This file records external code, papers, tutorials, datasets, and AI tools used 
 ## Course materials
 
 - CMU 10-799: Diffusion & Flow Matching, Spring 2026: <https://kellyyutonghe.github.io/10799S26/>
-- Official starter code: <https://github.com/KellyYutongHe/cmu-10799-diffusion>
-- Homework specifications in `homeworks/assignments/`
+- Official starter code: <https://github.com/KellyYutongHe/cmu-10799-diffusion>, imported from commit `e666fe97654e7463de43134a5e7317de6cb50f9a`
+- Coursework fork: <https://github.com/QR-0W/cmu-10799-diffusion>
+- [Homework specifications](../../assignments/)
 
-The starter code has not yet been imported into `code/`. Record its commit hash here when it is added.
+The upstream tree was imported into `homeworks/project/code/` without its nested Git metadata so all four assignments continue in this repository. The upstream repository has no standalone license file at the imported commit; its `pyproject.toml` declares the project license as MIT.
 
 ## Papers
 

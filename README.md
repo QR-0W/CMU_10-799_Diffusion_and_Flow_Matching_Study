@@ -70,10 +70,10 @@ CMU 10-799 是 Yutong He 于 Spring 2026 开设的七周生成模型课程。课
     ├── assignments/               # 课程发布的 HW1-HW4 PDF
     └── project/
         ├── code/                  # 模型实现与引用记录
-        ├── configs/               # 可复现实验配置
-        ├── experiments/           # 实验过程与指标摘要
+        │   └── configs/           # 训练和评估使用的实验配置
         ├── scripts/               # 本地、远端与评估脚本
-        ├── docs/public/           # 可公开的设计与资源说明
+        ├── docs/hw1...hw4/        # 实验设计、步骤、记录与结论
+        ├── docs/public/           # 跨作业规范与资源说明
         ├── docs/private/          # 本地运维信息，不进入 Git
         ├── reports/               # 作业报告材料
         └── artifacts/             # 数据、模型与日志，不进入 Git
@@ -90,9 +90,9 @@ CMU 10-799 是 Yutong He 于 Spring 2026 开设的七周生成模型课程。课
 | GPU | 支持 CUDA 的 NVIDIA GPU；完整训练建议至少 24 GB 显存 |
 | 存储 | 建议预留 100-200 GB，用于数据、checkpoint 和评估样本 |
 
-课程 starter code 尚未合入时，不在仓库根目录预先固定依赖。引入后以其 lockfile 和 setup 脚本为准，并记录 PyTorch、CUDA 与驱动版本。正式实验使用自动混合精度，通过 commit、配置文件和随机种子保证可复现性。
+本地环境只用于 coding、静态检查和轻量 smoke test。训练、采样、KID 和报告结果统一在远端 RTX 3090 上运行，一张 24 GB GPU 即可作为基线。课程 starter code 的环境以 `code/environments/` 为准，并记录 PyTorch、CUDA 与驱动版本；正式实验通过 commit、配置文件和随机种子保证可复现性。
 
-计算预算与双 GPU 执行策略见 [`homeworks/project/docs/public/compute-resources.md`](homeworks/project/docs/public/compute-resources.md)。
+计算预算与单 GPU 执行策略见 [`homeworks/project/docs/public/compute-resources.md`](homeworks/project/docs/public/compute-resources.md)。
 
 ## 参考资料
 
