@@ -47,5 +47,8 @@ homeworks/project/artifacts/metrics/
 .env
 .env.local
 
+# Private machine and operations documentation
+homeworks/project/docs/private/
+
 # OMC (oh-my-claudecode)
 .omc/state/
