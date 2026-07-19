@@ -1,0 +1,7 @@
+# 默认忽略所有内容
+/*
+
+# 只放行指定目录
+!/home/wjx/workspace/*
+
+!/home/wjx/CS336/*

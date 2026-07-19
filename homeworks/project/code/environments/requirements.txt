@@ -6,7 +6,7 @@
 #   2. Then: pip install -r environments/requirements.txt
 
 # Core dependencies
-numpy>=1.21.0  # Pin to 1.x for PyTorch compatibility
+numpy>=1.21.0  # NumPy 2.x is verified by the cu126 lock file
 pillow>=9.0.0
 PyYAML>=6.0
 einops>=0.6.0

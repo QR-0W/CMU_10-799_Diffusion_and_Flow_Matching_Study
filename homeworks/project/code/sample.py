@@ -5,17 +5,18 @@ Generate samples from a trained model. By default, saves individual images to av
 memory issues with large sample counts. Use --grid to generate a single grid image.
 
 Usage:
-    # Sample from DDPM (saves individual images to ./samples/)
-    python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --num_samples 64
+    # Sample from DDPM (saves under ../artifacts/samples/)
+    python sample.py --checkpoint ../artifacts/checkpoints/ddpm_final.pt --method ddpm --num_samples 64
 
     # With custom number of sampling steps
-    python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --num_steps 500
+    python sample.py --checkpoint ../artifacts/checkpoints/ddpm_final.pt --method ddpm --num_steps 500
 
     # Generate a grid image instead of individual images
-    python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --num_samples 64 --grid
+    python sample.py --checkpoint ../artifacts/checkpoints/ddpm_final.pt --method ddpm --num_samples 64 --grid
 
     # Save individual images to custom directory
-    python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --output_dir my_samples
+    python sample.py --checkpoint ../artifacts/checkpoints/ddpm_final.pt --method ddpm \
+        --output_dir ../artifacts/samples/custom
 
 What you need to implement:
 - Incorporate your sampling scheme to this pipeline
@@ -34,7 +35,7 @@ from tqdm import tqdm
 from src.models import create_model_from_config
 from src.data import save_image
 from src.methods import DDPM
-from src.utils import EMA
+from src.utils import SAMPLES_ROOT, EMA, resolve_code_path
 
 
 def load_checkpoint(checkpoint_path: str, device: torch.device):
@@ -79,12 +80,12 @@ def main():
                        help='Method used for training (currently only ddpm is supported)')
     parser.add_argument('--num_samples', type=int, default=64,
                        help='Number of samples to generate')
-    parser.add_argument('--output_dir', type=str, default='samples',
-                       help='Directory to save individual images (default: samples)')
+    parser.add_argument('--output_dir', type=str, default=str(SAMPLES_ROOT),
+                        help=f'Directory to save generated images (default: {SAMPLES_ROOT})')
     parser.add_argument('--grid', action='store_true',
                        help='Save as grid image instead of individual images')
     parser.add_argument('--output', type=str, default=None,
-                       help='Output path for grid (only used with --grid, default: samples_<timestamp>.png)')
+                       help='Output path for grid (default: <output_dir>/samples_<timestamp>.png)')
     parser.add_argument('--batch_size', type=int, default=64,
                        help='Batch size for generation')
     parser.add_argument('--seed', type=int, default=None,
@@ -101,6 +102,8 @@ def main():
                        help='Device to use')
     
     args = parser.parse_args()
+    args.checkpoint = str(resolve_code_path(args.checkpoint))
+    args.output_dir = str(resolve_code_path(args.output_dir))
     
     # Setup device
     device = torch.device(args.device if torch.cuda.is_available() else 'cpu')
@@ -181,9 +184,12 @@ def main():
 
         if args.output is None:
             timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-            args.output = f"samples_{timestamp}.png"
+            args.output = os.path.join(args.output_dir, f"samples_{timestamp}.png")
+        else:
+            args.output = str(resolve_code_path(args.output))
 
-        save_samples(all_samples, args.output, nrow=8)
+        os.makedirs(os.path.dirname(args.output), exist_ok=True)
+        save_samples(all_samples, args.output, args.num_samples)
         print(f"Saved grid to {args.output}")
     else:
         print(f"Saved {args.num_samples} individual images to {args.output_dir}")

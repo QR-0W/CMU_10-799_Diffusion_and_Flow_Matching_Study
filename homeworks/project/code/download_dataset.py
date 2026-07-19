@@ -4,20 +4,21 @@ Download CelebA Subset from Hugging Face
 This script downloads the course dataset from Hugging Face Hub.
 
 Usage:
-    python download_dataset.py --output_dir ./data/celeba-subset
+    python download_dataset.py
     
-    # Or specify a custom dataset
-    python download_dataset.py --repo electronickale/cmu-10799-celeba64-subset --output_dir ./data
+    # Or specify a custom output directory relative to code/
+    python download_dataset.py --output_dir ../artifacts/datasets/celeba-subset
 """
 
-import os
 import argparse
 from pathlib import Path
+
+from src.utils.paths import CELEBA_ROOT, resolve_code_path
 
 
 def download_from_huggingface(
     repo_name: str = "electronickale/cmu-10799-celeba64-subset",
-    output_dir: str = "./data",
+    output_dir: str | Path = CELEBA_ROOT,
     split: str = "train",
 ):
     """
@@ -51,7 +52,7 @@ def download_from_huggingface(
         dataset = load_dataset(repo_name, split=split)
     
     # Create output directory
-    output_dir = Path(output_dir)
+    output_dir = resolve_code_path(output_dir)
     output_dir.mkdir(parents=True, exist_ok=True)
     
     # Save to disk in our format
@@ -68,7 +69,7 @@ def download_from_huggingface(
     print("=" * 60)
     print(f"\nDataset saved to: {output_dir}")
     print("\nTo use in training:")
-    print(f"  python train.py --method ddpm --config configs/ddpm.yaml")
+    print("  python train.py --method ddpm --config configs/hw1/ddpm.yaml")
     print(f"\n  (Make sure data.root in config points to {output_dir})")
 
 
@@ -115,8 +116,8 @@ def main():
     parser = argparse.ArgumentParser(description='Download CelebA subset from Hugging Face')
     parser.add_argument('--repo', type=str, default='electronickale/cmu-10799-celeba64-subset',
                         help='HuggingFace repo name')
-    parser.add_argument('--output_dir', type=str, default='./data/celeba-subset',
-                        help='Output directory')
+    parser.add_argument('--output_dir', type=str, default=str(CELEBA_ROOT),
+                        help=f'Output directory (default: {CELEBA_ROOT})')
     parser.add_argument('--split', type=str, default='train',
                         choices=['train', 'validation', 'all'],
                         help='Which split to download')

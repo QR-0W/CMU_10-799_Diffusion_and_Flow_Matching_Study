@@ -22,6 +22,8 @@ from torchvision.utils import make_grid as torch_make_grid
 from torchvision.utils import save_image as torch_save_image
 from PIL import Image
 
+from src.utils.paths import CELEBA_ROOT, resolve_code_path
+
 
 class CelebADataset(Dataset):
     """
@@ -32,7 +34,7 @@ class CelebADataset(Dataset):
     2. Local mode: Loads from local directory with images/ and attributes.csv
 
     Args:
-        root: Root directory for the dataset (e.g., "./data/celeba-subset")
+        root: Root directory for the dataset
         split: Dataset split ('train', 'validation', or 'all') (currently only 'train' is available)
         image_size: Target image resolution (default: 64, images are already 64x64)
         augment: Whether to apply data augmentation
@@ -42,14 +44,14 @@ class CelebADataset(Dataset):
 
     def __init__(
         self,
-        root: str = "./data/celeba-subset",
+        root: str = str(CELEBA_ROOT),
         split: str = "train",
         image_size: int = 64,
         augment: bool = True,
         from_hub: bool = False,
         repo_name: str = "electronickale/cmu-10799-celeba64-subset",
     ):
-        self.root = root
+        self.root = str(resolve_code_path(root))
         self.split = split
         self.image_size = image_size
         self.augment = augment
@@ -280,7 +282,7 @@ class CelebADataset(Dataset):
 
 
 def create_dataloader(
-    root: str = "./data/celeba-subset",
+    root: str = str(CELEBA_ROOT),
     split: str = "train",
     image_size: int = 64,
     batch_size: int = 64,
@@ -296,7 +298,7 @@ def create_dataloader(
     Create a DataLoader for CelebA.
 
     Args:
-        root: Root directory for local dataset (default: "./data/celeba-subset")
+        root: Root directory for the local dataset
         split: Dataset split ('train', 'validation', or 'all')
         image_size: Target image resolution (default: 64)
         batch_size: Batch size
@@ -350,7 +352,7 @@ def create_dataloader_from_config(config: dict, split: str = "train") -> DataLoa
     training_config = config['training']
 
     return create_dataloader(
-        root=data_config.get('root', './data/celeba-subset'),
+        root=data_config.get('root') or str(CELEBA_ROOT),
         split=split,
         image_size=data_config['image_size'],
         batch_size=training_config['batch_size'],

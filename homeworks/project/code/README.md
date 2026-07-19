@@ -6,6 +6,8 @@ This repository contains your starter code for all four homework assignments. Yo
 
 [Class Website](https://kellyyutonghe.github.io/10799S26/) | [Homework Handouts](https://kellyyutonghe.github.io/10799S26/homework/)
 
+> This file retains upstream Modal and SLURM references. The active setup is the single-GPU workstation workflow documented in [`../README.md`](../README.md); run project commands from this `code/` directory and store runtime artifacts under `../artifacts/`.
+
 ## Project Structure
 
 ```
@@ -29,7 +31,8 @@ cmu-10799-diffusion/
 │   │   └── celeba.py         # CelebA dataset loading, TODO: fill in your data transforms functions
 │   └── utils/
 │       ├── ema.py            # EMA helper
-│       └── logging_utils.py  # Logging utilities
+│       ├── logging_utils.py  # Logging utilities
+│       └── paths.py          # Canonical workstation runtime paths
 │
 ├── configs/                  # Hyperparameter configurations
 │   ├── ddpm_modal.yaml       # DDPM config for Modal
@@ -93,13 +96,14 @@ source .venv-cuda121/bin/activate    # If CUDA 12.1 was detected
 ### 2. Download Dataset
 
 ```bash
+# Saved under ../artifacts/datasets/ by default
 python download_dataset.py
 ```
 
 ### 3. Train (SLURM Cluster)
 
 ```bash
-# Train DDPM (uses configs/ddpm.yaml by default)
+# Upstream SLURM example (not used by the workstation workflow)
 sbatch scripts/train.sh ddpm
 
 # Train with custom config
@@ -126,8 +130,10 @@ See [docs/QUICKSTART-MODAL.md](docs/QUICKSTART-MODAL.md) for complete Modal setu
 ### 5. Evaluate
 
 ```bash
-# Evaluate using torch-fidelity (local/cluster)
-./scripts/evaluate_torch_fidelity.sh ddpm checkpoints/ddpm/ddpm_final.pt
+# Evaluate using torch-fidelity on the workstation; replace <run>
+./scripts/evaluate_torch_fidelity.sh \
+  --checkpoint ../artifacts/checkpoints/<run>/ddpm_final.pt \
+  --dataset-path ../artifacts/datasets/celeba-subset/train
 
 # Evaluate on Modal
 ./scripts/evaluate_modal_torch_fidelity.sh ddpm checkpoints/ddpm/ddpm_final.pt
@@ -210,16 +216,16 @@ If you prefer to run Python commands directly instead of using the provided scri
 ### Training
 
 ```bash
-python train.py --method ddpm --config configs/ddpm.yaml
+python train.py --method ddpm --config configs/hw1/ddpm.yaml
 ```
 
 ### Generating Samples
 
 ```bash
-python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --num_samples 64
+python sample.py --checkpoint ../artifacts/checkpoints/<run>/ddpm_final.pt --method ddpm --num_samples 64
 
 # With custom number of sampling steps
-python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --num_steps 500
+python sample.py --checkpoint ../artifacts/checkpoints/<run>/ddpm_final.pt --method ddpm --num_steps 500
 ```
 
 ### Evaluation
@@ -227,8 +233,10 @@ python sample.py --checkpoint checkpoints/ddpm_final.pt --method ddpm --num_step
 Use the provided shell scripts that wrap `torch-fidelity`:
 
 ```bash
-# Evaluate locally or on cluster
-./scripts/evaluate_torch_fidelity.sh ddpm checkpoints/ddpm_final.pt
+# Evaluate on the workstation
+./scripts/evaluate_torch_fidelity.sh \
+  --checkpoint ../artifacts/checkpoints/<run>/ddpm_final.pt \
+  --dataset-path ../artifacts/datasets/celeba-subset/train
 
 # Evaluate on Modal
 ./scripts/evaluate_modal_torch_fidelity.sh ddpm checkpoints/ddpm_final.pt

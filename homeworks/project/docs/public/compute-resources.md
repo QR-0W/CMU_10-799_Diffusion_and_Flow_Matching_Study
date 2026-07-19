@@ -2,21 +2,18 @@
 
 ## Baseline
 
-一张 NVIDIA GeForce RTX 3090 具有 24 GB 显存，足以作为本课程作业的基线计算资源。HW1 starter config 明确说明 `num_gpus: 1 should be ok`，训练脚本也原生支持单卡执行。
+当前开发与实验环境是一台配备 NVIDIA GeForce RTX 3090 24 GB 的工作站。HW1 starter config 明确说明 `num_gpus: 1 should be ok`，训练脚本也原生支持单卡执行。
 
-计算节点可以是空闲的单卡服务器，也可以是双卡服务器中的一张空闲卡。完成作业不依赖双卡 DDP。
-
-公开仓库不记录主机名、地址、账户、挂载点、实时利用率、进程信息或凭据。实际连接与路径只保存在被 Git 忽略的 `docs/private/`。
+四次作业均以单卡为固定执行边界，不依赖 DDP，也不设计跨主机同步流程。公开仓库不记录主机名、地址、账户、绝对路径、实时利用率、进程信息或凭据。
 
 ## Execution strategy
 
-- 本地只负责 coding、文档、静态检查和轻量检查。
-- 训练、采样、KID 和报告中的正式结果统一在远端 RTX 3090 上运行。
-- HW1 与 HW2 的主模型默认使用一张 GPU。
+- coding、文档、静态检查、smoke test、训练、采样和 KID 均在同一工作区进行。
+- 交互式检查可以基于工作树，写入报告的正式实验必须基于已提交 commit。
+- HW1 至 HW4 始终使用一张 GPU。
 - 使用自动混合精度，初始 batch size 设为 16，再根据峰值显存尝试 32。
 - 每次正式训练前运行短程 smoke test，并记录 `torch.cuda.max_memory_allocated()`。
-- 如果同时获得第二张空闲卡，优先并行运行独立采样、评估或消融，而不是立即启用 DDP。
-- 不在已有计算进程的 GPU 上启动任务。
+- GPU 被其他进程占用时不启动正式任务，长任务通过项目队列串行执行。
 
 ## Expected feasibility
 
@@ -29,7 +26,7 @@
 - 无 OOM、NaN 或数据加载错误。
 - 能保存并恢复 checkpoint。
 
-若显存不足，按顺序降低 batch size、减少 attention resolution、降低 base channels，最后才考虑 gradient checkpointing。不要仅为增大 batch size 引入双卡训练。
+若显存不足，按顺序降低 batch size、减少 attention resolution、降低 base channels，最后才考虑 gradient checkpointing。不要引入多卡训练作为默认解决方案。
 
 ## Assignment plan
 
@@ -57,6 +54,15 @@ HW1 使用 1,000 个生成样本计算 KID，并比较 100、300、500、700、9
 
 同一比较组固定评估参数。机器标识不是复现所必需的信息，不得提交。
 
-## Local queue
+## Workstation queue
 
-`scripts/remote/gpu-queue.sh` 用于协调当前账户自己的任务。它等待空闲设备、通过 `CUDA_VISIBLE_DEVICES` 绑定单张 GPU，并将队列文件保持为私有。它不是系统调度器，不能阻止其他用户绕过队列。
+`scripts/workstation/gpu-queue.sh` 用于协调当前工作区的长任务。它等待 GPU 0 空闲、通过 `CUDA_VISIBLE_DEVICES` 绑定设备，并将队列状态和日志保存在被 Git 忽略的 `artifacts/queue/`。它只协调通过该脚本提交的任务，不能替代系统级资源调度器。
+
+从 `homeworks/project/code/` 提交训练任务时，队列会记录提交时的工作目录，并在相同目录执行命令：
+
+```bash
+../scripts/workstation/gpu-queue.sh start 0
+../scripts/workstation/gpu-queue.sh submit -- \
+  .venv-cu126/bin/python train.py --method ddpm --config configs/hw1/example.yaml
+../scripts/workstation/gpu-queue.sh status
+```

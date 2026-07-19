@@ -3,22 +3,25 @@ set -euo pipefail
 
 umask 077
 
-STATE_DIR="${GPU_QUEUE_DIR:-$HOME/.gpu-queue}"
+SCRIPT_DIR="$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)"
+PROJECT_ROOT="$(cd -- "$SCRIPT_DIR/../.." && pwd)"
+STATE_DIR="${GPU_QUEUE_DIR:-$PROJECT_ROOT/artifacts/queue}"
 POLL_SECONDS="${GPU_QUEUE_POLL_SECONDS:-30}"
-SESSION_PREFIX="gpuq-"
+PROJECT_ID="$(printf '%s' "$PROJECT_ROOT" | cksum | cut -d' ' -f1)"
+SESSION_PREFIX="gpuq-${PROJECT_ID}-"
 
 usage() {
     cat <<'EOF'
 Usage:
   gpu-queue init
   gpu-queue submit -- COMMAND [ARG ...]
-  gpu-queue start [GPU ...]
+  gpu-queue start [GPU]
   gpu-queue worker GPU
   gpu-queue status
   gpu-queue stop
 
-The queue coordinates only this user's jobs. It cannot reserve a GPU against
-processes started by other users outside this queue.
+The queue coordinates only jobs submitted from this workspace. It cannot
+reserve a GPU against processes started outside this queue.
 EOF
 }
 
@@ -75,7 +78,9 @@ submit_job() {
     job="$STATE_DIR/pending/${id}.job"
 
     {
-        printf '#!/usr/bin/env bash\nset -euo pipefail\nexec'
+        printf '#!/usr/bin/env bash\nset -euo pipefail\n'
+        printf 'cd %q\n' "$PWD"
+        printf 'exec'
         printf ' %q' "$@"
         printf '\n'
     } >"$tmp"
@@ -151,8 +156,9 @@ start_workers() {
     script="$(readlink -f "$0")"
 
     if (( ${#gpus[@]} == 0 )); then
-        mapfile -t gpus < <(nvidia-smi --query-gpu=index --format=csv,noheader)
+        gpus=(0)
     fi
+    (( ${#gpus[@]} == 1 )) || die "this workspace supports one GPU worker"
 
     for gpu in "${gpus[@]}"; do
         validate_gpu "$gpu"

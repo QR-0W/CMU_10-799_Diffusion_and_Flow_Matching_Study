@@ -17,10 +17,11 @@ What you need to implement:
 
 Usage:
     # Train DDPM
-    python train.py --method ddpm --config configs/ddpm.yaml
+    python train.py --method ddpm --config configs/hw1/ddpm.yaml
 
     # Resume training
-    python train.py --method ddpm --config configs/ddpm.yaml --resume checkpoints/ddpm_50000.pt
+    python train.py --method ddpm --config configs/hw1/ddpm.yaml \
+        --resume ../artifacts/checkpoints/ddpm_50000.pt
 """
 
 import os
@@ -43,31 +44,38 @@ from tqdm import tqdm
 from src.models import UNet, create_model_from_config
 from src.data import create_dataloader_from_config, save_image, unnormalize
 from src.methods import DDPM
-from src.utils import EMA
+from src.utils import CHECKPOINTS_ROOT, LOGS_ROOT, SAMPLES_ROOT, EMA, resolve_code_path
 
 import wandb
 from PIL import Image as PILImage
 
 def load_config(config_path: str) -> dict:
     """Load configuration from YAML file."""
-    with open(config_path, 'r') as f:
+    with open(resolve_code_path(config_path), 'r') as f:
         config = yaml.safe_load(f)
     return config
 
 
-def setup_logging(config: dict, method_name: str) -> tuple[str, Any]:
-    """Set up logging directories and wandb. Returns (log_dir, wandb_run)."""
+def setup_logging(config: dict, method_name: str) -> tuple[str, str, str, Any]:
+    """Create isolated log, checkpoint, and sample directories for one run."""
     timestamp = datetime.now().strftime("%Y%m%d_%H%M%S")
-    log_dir = os.path.join(config['logging']['dir'], f"{method_name}_{timestamp}")
-    os.makedirs(log_dir, exist_ok=True)
-    os.makedirs(os.path.join(log_dir, 'samples'), exist_ok=True)
-    os.makedirs(os.path.join(log_dir, 'checkpoints'), exist_ok=True)
+    run_name = f"{method_name}_{timestamp}"
+    log_root = config['logging'].get('dir') or LOGS_ROOT
+    checkpoint_root = config['checkpoint'].get('dir') or CHECKPOINTS_ROOT
+    sample_root = config.get('sampling', {}).get('output_dir') or SAMPLES_ROOT
+    log_dir = resolve_code_path(log_root) / run_name
+    checkpoint_dir = resolve_code_path(checkpoint_root) / run_name
+    sample_dir = resolve_code_path(sample_root) / run_name
+    for directory in (log_dir, checkpoint_dir, sample_dir):
+        directory.mkdir(parents=True, exist_ok=True)
 
     # Save config
-    with open(os.path.join(log_dir, 'config.yaml'), 'w') as f:
+    with open(log_dir / 'config.yaml', 'w') as f:
         yaml.dump(config, f)
 
     print(f"Logging to: {log_dir}")
+    print(f"Checkpoints to: {checkpoint_dir}")
+    print(f"Samples to: {sample_dir}")
 
     # Initialize wandb if enabled
     wandb_run = None
@@ -79,7 +87,7 @@ def setup_logging(config: dict, method_name: str) -> tuple[str, Any]:
                 entity=wandb_config.get('entity', None),
                 name=f"{method_name}_{timestamp}",
                 config=config,
-                dir=log_dir,
+                dir=str(log_dir),
                 tags=[method_name],
             )
             print(f"Weights & Biases: {wandb_run.url}")
@@ -88,7 +96,7 @@ def setup_logging(config: dict, method_name: str) -> tuple[str, Any]:
         except Exception as e:
             print(f"Warning: Failed to initialize wandb: {e}")
 
-    return log_dir, wandb_run
+    return str(log_dir), str(checkpoint_dir), str(sample_dir), wandb_run
 
 
 def get_distributed_context() -> tuple[int, int, int]:
@@ -413,9 +421,11 @@ def train(
 
     # Setup logging
     log_dir = None
+    checkpoint_dir = None
+    sample_dir = None
     wandb_run = None
     if is_main_process:
-        log_dir, wandb_run = setup_logging(config, method_name)
+        log_dir, checkpoint_dir, sample_dir, wandb_run = setup_logging(config, method_name)
 
     # Log model info to wandb
     if is_main_process and wandb_run is not None:
@@ -604,7 +614,7 @@ def train(
                     ema,
                     current_step=step + 1,
                 )
-                sample_path = os.path.join(log_dir, 'samples', f'samples_{step + 1:07d}.png')
+                sample_path = os.path.join(sample_dir, f'samples_{step + 1:07d}.png')
                 save_samples(samples, sample_path, num_samples)
 
                 # Log samples to wandb
@@ -625,7 +635,7 @@ def train(
         # Save checkpoint
         if (step + 1) % save_every == 0:
             if is_main_process:
-                checkpoint_path = os.path.join(log_dir, 'checkpoints', f'{method_name}_{step + 1:07d}.pt')
+                checkpoint_path = os.path.join(checkpoint_dir, f'{method_name}_{step + 1:07d}.pt')
                 save_checkpoint(checkpoint_path, model, optimizer, ema, scaler, step + 1, config)
 
             # Barrier to synchronize all processes after checkpoint save
@@ -634,12 +644,12 @@ def train(
     
     # Save final checkpoint
     if is_main_process:
-        final_path = os.path.join(log_dir, 'checkpoints', f'{method_name}_final.pt')
+        final_path = os.path.join(checkpoint_dir, f'{method_name}_final.pt')
         save_checkpoint(final_path, model, optimizer, ema, scaler, num_iterations, config)
 
         print("\nTraining complete!")
         print(f"Final checkpoint: {final_path}")
-        print(f"Samples saved to: {os.path.join(log_dir, 'samples')}")
+        print(f"Samples saved to: {sample_dir}")
 
     # Finish wandb run
     if is_main_process and wandb_run is not None:
@@ -661,7 +671,7 @@ def main():
                        choices=['ddpm'], # You can add more later
                        help='Method to train (currently only ddpm is supported)')
     parser.add_argument('--config', type=str, required=True,
-                       help='Path to config file (e.g., configs/ddpm.yaml)')
+                       help='Path to config file (e.g., configs/hw1/ddpm.yaml)')
     parser.add_argument('--resume', type=str, default=None,
                        help='Path to checkpoint to resume from')
     parser.add_argument('--overfit-single-batch', action='store_true',
@@ -674,6 +684,7 @@ def main():
 
     # Override with resume path if specified
     if args.resume:
+        args.resume = str(resolve_code_path(args.resume))
         config['checkpoint']['resume'] = args.resume
 
     # Train

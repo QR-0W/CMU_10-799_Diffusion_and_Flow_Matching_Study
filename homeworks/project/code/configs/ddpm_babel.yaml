@@ -52,11 +52,11 @@ infrastructure:
   compile_model: false # only tested false
 
 checkpoint:
-  dir: "./checkpoints"
+  dir: "../artifacts/checkpoints"
   resume: null
 
 logging:
-  dir: "./logs"
+  dir: "../artifacts/logs"
   wandb:
     enabled: true
     project: "cmu-10799-diffusion"
